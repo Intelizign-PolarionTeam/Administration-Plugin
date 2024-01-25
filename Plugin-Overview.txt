@@ -1,0 +1,2 @@
+This plugin assists Polarion administrators by presenting a 
+comprehensive table of customization details for easy viewing.
