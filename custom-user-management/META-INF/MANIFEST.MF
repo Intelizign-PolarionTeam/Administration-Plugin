@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: User-management
+Bundle-SymbolicName: custom-user-management;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Intelizign Engineering Services Gmbh
+Require-Bundle: com.polarion.portal.tomcat;bundle-version="9.0.65",
+ com.polarion.alm.ui;bundle-version="3.23.4",
+ com.polarion.alm.tracker;bundle-version="3.23.4",
+ com.fasterxml.jackson;bundle-version="2.13.4"
+Automatic-Module-Name: user.management.singleton.true
+Bundle-ClassPath: CustomUserManagement.jar
+Bundle-RequiredExecutionEnvironment: JavaSE-17
