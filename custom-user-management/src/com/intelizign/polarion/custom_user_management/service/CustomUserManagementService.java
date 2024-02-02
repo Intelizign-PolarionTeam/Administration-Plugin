@@ -33,6 +33,8 @@ import com.polarion.alm.tracker.workflow.config.IWorkflowConfig;
 import com.polarion.core.util.logging.Logger;
 import com.polarion.platform.core.PlatformContext;
 import com.polarion.platform.persistence.ICustomFieldsService;
+import com.polarion.platform.persistence.IEnumObjectFactory;
+import com.polarion.platform.persistence.IEnumeration;
 import com.polarion.platform.persistence.UnresolvableObjectException;
 import com.polarion.platform.persistence.model.IPObjectList;
 import com.polarion.subterra.base.data.model.ICustomField;
@@ -47,13 +49,14 @@ public class CustomUserManagementService {
 	// .lookupService(IWorkflowObject.class);
 	private List<CustomDetailsPojo> customDetailsList = new ArrayList<>();
 	
-	private List<CustomPostAndPreSaveScriptPojo> customPostAndPreSaveScriptPojo = new ArrayList<>();
+	private List<CustomPostAndPreSaveScriptPojo> customPostAndPreSaveScriptList = new ArrayList<>();
 	private List<ScriptConditionPojo> scriptConditionList = new ArrayList<>();
 	private List<ScriptFunctionPojo> scriptFunctionList = new ArrayList<>();
 	private Set<CustomEnumerationPojo> customEnumerationList = new HashSet<>();
 	
 	private Gson gson = new Gson();
 	private Map<String, String> projectMap = new HashMap<String, String>();
+	private Map<String, String> prepostscriptMap = new HashMap<String, String>();
 	private Map<String, Object> responseData = new HashMap<>();
 
 	public CustomUserManagementService() {
@@ -62,26 +65,34 @@ public class CustomUserManagementService {
 
 	// Get all Project From the server
 	public void getProjectList(HttpServletRequest req, HttpServletResponse resp) throws UnresolvableObjectException {
-		try {
-			PrintWriter out = resp.getWriter();
-			IPObjectList<IProject> getProjectList = trackerService.getProjectsService().searchProjects("", "id");
-			for (IProject pro : getProjectList) {
-				try {
-					projectMap.put(pro.getId(), pro.getName());
-				} catch (UnresolvableObjectException e) {
-					log.error("Skipping entry due to UnresolvableObjectException: " + e.getMessage());
-				} catch (Exception e) {
-					log.error("Exception is" + e.getMessage());
-					continue;
-				}
-			}
-			responseData.put("projectMap", projectMap);
-			String projectResponsObj = gson.toJson(responseData);
-			out.println(projectResponsObj);
-		} catch (Exception e) {
-			System.out.println("Error Message is" + e.getMessage());
-			e.printStackTrace();
-		}
+	    try {
+	        if (!(customPostAndPreSaveScriptList.isEmpty())) {
+	            customPostAndPreSaveScriptList.clear();
+	        }
+
+	        PrintWriter out = resp.getWriter();
+	        IPObjectList<IProject> getProjectList = trackerService.getProjectsService().searchProjects("", "id");
+
+	        for (IProject pro : getProjectList) {
+	            try {
+	                projectMap.put(pro.getId(), pro.getName());
+	            } catch (UnresolvableObjectException e) {
+	                log.error("Skipping entry due to UnresolvableObjectException: " + e.getMessage());
+	            } catch (Exception e) {
+	                log.error("Exception is" + e.getMessage());
+	                continue;
+	            }
+	        }
+
+	        getPreAndPostSaveScript(responseData);
+	        responseData.put("projectMap", projectMap);
+	        String projectResponsObj = gson.toJson(responseData);
+	        out.println(projectResponsObj);
+
+	    } catch (Exception e) {
+	        System.out.println("Error Message is" + e.getMessage());
+	        e.printStackTrace();
+	    }
 	}
 
 	// Get Customization Details From the respective Project
@@ -103,9 +114,7 @@ public class CustomUserManagementService {
 			if (!(customEnumerationList.isEmpty())) {
 				customEnumerationList.clear();
 			}
-			if (!(customPostAndPreSaveScriptPojo.isEmpty())) {
-				customPostAndPreSaveScriptPojo.clear();
-			}
+			
 			List<ITypeOpt> workItemTypeEnum = trackerService.getTrackerProject(projectId).getWorkItemTypeEnum()
 					.getAvailableOptions("type");
 			for (ITypeOpt wiTypeEnum : workItemTypeEnum) {
@@ -114,7 +123,8 @@ public class CustomUserManagementService {
 					getCustomFieldDetails(trackerPro, wiTypeEnum);
 					getCustomWorkFlowScript(trackerPro, wiTypeEnum);
 					getCustomEnumerationDetails(trackerPro, wiTypeEnum);
-					getPreAndPostSaveScript(trackerPro,wiTypeEnum);
+					
+					// getPreAndPostSaveScript(trackerPro,wiTypeEnum);
 				} catch (UnresolvableObjectException e) {
 					log.error("Skipping entry due to UnresolvableObjectException: " + e.getMessage());
 				} catch (Exception e) {
@@ -127,7 +137,7 @@ public class CustomUserManagementService {
 			String scriptConditionJson = objectMapper.writeValueAsString(scriptConditionList);
 			String scriptFunctionJson = objectMapper.writeValueAsString(scriptFunctionList);
 			String customEnumerationJson = objectMapper.writeValueAsString(customEnumerationList);
-			String customPostAndPreSaveScriptJson = objectMapper.writeValueAsString(customPostAndPreSaveScriptPojo);
+			String customPostAndPreSaveScriptJson = objectMapper.writeValueAsString(customPostAndPreSaveScriptList);
 			
 			
 			resp.setContentType("application/json");
@@ -142,43 +152,25 @@ public class CustomUserManagementService {
 		}
 	}
 
-	private void getPreAndPostSaveScript(ITrackerProject trackerPro, ITypeOpt wiTypeEnum) {
+	private void getPreAndPostSaveScript(Map<String, Object> responseData) {
 	    try {
-	        int jsFileCount = 0;
-	        List<String> jsFileNames = new ArrayList<>(); // To store the names of JavaScript files
-
 	        String folderPath = System.getProperty("com.polarion.home") + "/../scripts/" + "/workitemsave/";
-	        System.out.println("folderPath " + folderPath);
 	        File folder = new File(folderPath);
-	        System.out.println("folder: " + folder);
-	        System.out.println("folder 1 " + folder.exists() + " " + folder.isDirectory());
+
+	        Map<String, String> scriptMap = new HashMap<>();
 
 	        if (folder.exists() && folder.isDirectory()) {
-	            List<File> jsFiles = getAllJsFiles(folder);
-	            for (File jsFile : jsFiles) {
-	                try {
-	                    String fileName = jsFile.getName();
-	                    String fileContent = new String(Files.readAllBytes(jsFile.toPath()), StandardCharsets.UTF_8);
-	                    jsFileCount++;
-
-	                    System.out.println("File Name: " + fileName);
-	                    jsFileNames.add(fileName);
-
-	                } catch (Exception e) {
-	                    e.printStackTrace();
-	                }
+	            for (File jsFile : folder.listFiles()) {
+	                // Assuming jsFile.getName() represents the JS filename
+	                // and folderPath represents the folder path
+	                scriptMap.put(jsFile.getName(), folderPath);
 	            }
 	        } else {
 	            System.out.println("The specified folder does not exist or is not a directory.");
 	        }
 
-	        System.out.println("Total number of JavaScript files: " + jsFileCount);
-	        System.out.println("JavaScript file names: " + jsFileNames);
-
-	        // Create CustomDetailsPojo instance with counts and names
-	System.out.println("jsFileCount "+jsFileCount);
-	
-	        customPostAndPreSaveScriptPojo.add(new CustomPostAndPreSaveScriptPojo(jsFileCount, wiTypeEnum, jsFileNames));
+	        // Add the scriptMap to the responseData or use it as needed
+	        responseData.put("scriptMap", scriptMap);
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -186,20 +178,7 @@ public class CustomUserManagementService {
 	}
 
 	
-	private static List<File> getAllJsFiles(File folder) {
-        List<File> jsFiles = new ArrayList<>();
-
-        for (File file : folder.listFiles()) {
-            if (file.isFile() && file.getName().endsWith(".js")) {
-                jsFiles.add(file);
-               
-            } else if (file.isDirectory()) {
-                jsFiles.addAll(getAllJsFiles(file)); // Recursively search subdirectories
-            }
-        }
-
-        return jsFiles;
-    }
+	
 
 	// Get custom Field Count with Respective WorkItem Type
 	public void getCustomFieldDetails(ITrackerProject pro, ITypeOpt wiTypeEnum) throws UnresolvableObjectException {
@@ -284,6 +263,19 @@ ArrayList<Integer> wiTypeCountsList = new ArrayList<>(conditionScriptCountMap.va
 			throws UnresolvableObjectException {
 		try {
 			int customEnumerationCount = 0;
+			Map<String, IEnumObjectFactory> enumFactory = trackerService.getDataService().getEnumerationObjectFactories();
+
+			for (Map.Entry<String, IEnumObjectFactory> entry : enumFactory.entrySet()) {
+			    String key = entry.getKey();
+			    IEnumObjectFactory value = entry.getValue();
+			    List<IEnumeration> Enum= value.getEnumeration("stakeholderRequirement", pro.getContextId()).getAllOptions();
+			System.out.println("Enum "+Enum);
+			  
+			  
+			    // Now you can use 'key' and 'value' as needed
+			    System.out.println("Key: " + key + ", Value: " + value);
+			}
+
 			ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 			Collection<ICustomField> customFieldList = customFieldService.getCustomFields("WorkItem",
 					pro.getContextId(), wiTypeEnum.getId());

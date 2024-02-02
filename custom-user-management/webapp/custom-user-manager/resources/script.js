@@ -5,6 +5,17 @@ $(document).ready(function() {
 		dataType: "json",
 		success: function(data) {
 			const projectId = data.projectMap;
+			const customPostAndPreSaveScriptList = data.scriptMap
+console.log("customPostAndPreSaveScriptList", customPostAndPreSaveScriptList);
+
+  $('#pre-post a').on('click', function () {
+                showPopup('Pre-Post Save Details', customPostAndPreSaveScriptList);
+            });
+
+
+
+
+           
 			console.log("Data is", projectId);
 
 			const selectElement = $("#projectDropDown");
@@ -48,20 +59,8 @@ function projectInfo() {
 			const scriptConditionList = data.scriptConditionList;
 			const scriptFunctionList = data.scriptFunctionList;
 			const customEnumerationList = data.customEnumerationList;
-			const customPostAndPreSaveScriptList = data.customPostAndPreSaveScriptList
-//console.log("customPostAndPreSaveScriptList", customPostAndPreSaveScriptList);
-const firstItemJsFileNames = customPostAndPreSaveScriptList[0].jsFileNames;
-const jsFileCount = customPostAndPreSaveScriptList[0].jsFileCount;
-console.log("jsFileNames for the first item:", customPostAndPreSaveScriptList);
-console.log("jsFileNames ", firstItemJsFileNames);
-console.log("jsFileCount ", jsFileCount);
-
-
-for (const fileName of firstItemJsFileNames) {
-    console.log("File Name:", fileName);
-}
-
-            createScriptLink("Pre-Post Save Details", firstItemJsFileNames, jsFileCount);
+			
+			 $('#pre-post').css('display', 'block');
             
 
 
@@ -148,26 +147,14 @@ function updateCellBasedOnScriptFunction(list, workItemType, countProperty, row)
 	row.append(cell);
 }
 
-function createScriptLink(scriptType, fileNames, jsFileCount) {
-	 $('#prepost').empty();
-    const link = $('<a>')
-        .text(`${scriptType}`)
-        .attr('href', '#') // Set href to "#" to prevent the page from navigating
-        .on('click', function () {
-            showPopup(scriptType, fileNames, jsFileCount);
-        });
-
-    // Append the link to a container or wherever you want it in your UI
-    $('#prepost').append(link);
-}
-
-// Helper function to show modal popup with jsFileCount and fileName
-function showPopup(scriptType, fileNames, jsFileCount) {
+// Modified showPopup function
+function showPopup(scriptType, scriptList) {
     // Create a modal popup
+   
     $('#popupModel').css('display', 'block');
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
-    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text('Pre - Post Save Details');
+    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(scriptType);
 
     // Create the body of the modal
     const popupBody = $('<div>').addClass('popup-body');
@@ -180,11 +167,11 @@ function showPopup(scriptType, fileNames, jsFileCount) {
     tbody.append(tableHeaderRow);
 
     // Add table content
-    fileNames.forEach(fileName => {
+    for (const fileName in scriptList) {
         const tableContentRow = $('<tr>').addClass('table-content-row');
         tableContentRow.append($('<td>').text(fileName));
         tbody.append(tableContentRow);
-    });
+    }
 
     table.append(tbody);
     popupBody.append(table);
@@ -203,8 +190,9 @@ function showPopup(scriptType, fileNames, jsFileCount) {
     modal.append(modalContent);
 
     // Append the modal to the body
-    $('#prepost').append(modal);
+    $('#pre-post').append(modal);
 
     // Show the modal
     modal.show();
 }
+

@@ -1,44 +1,29 @@
 package com.intelizign.polarion.custom_user_management.model;
 
-import java.util.List;
-
-import com.polarion.alm.tracker.model.ITypeOpt;
 
 public class CustomPostAndPreSaveScriptPojo {
-    private int jsFileCount;
-    private ITypeOpt wiTypeEnum;
-    private List<String> jsFileNames;
+	private String folderPath;
+	private String jsFileNames;
 
-    public CustomPostAndPreSaveScriptPojo(int jsFileCount, ITypeOpt wiTypeEnum, List<String> jsFileNames) {
-    	super();
-    	this.jsFileCount = jsFileCount;
-        this.wiTypeEnum = wiTypeEnum;
-        this.jsFileNames = jsFileNames;
-    }
+	// Constructor
+	public CustomPostAndPreSaveScriptPojo( String folderPath, String jsFileNames) {
+		this.folderPath = folderPath;
+		this.jsFileNames = jsFileNames;
+	}
 
-    public int getJsFileCount() {
-        return jsFileCount;
-    }
+	public String getFolderPath() {
+		return folderPath;
+	}
 
-    public void setJsFileCount(int jsFileCount) {
-        this.jsFileCount = jsFileCount;
-    }
+	public void setFolderPath(String folderPath) {
+		this.folderPath = folderPath;
+	}
 
-    public ITypeOpt getWiTypeEnum() {
-        return wiTypeEnum;
-    }
+	public String getJsFileNames() {
+		return jsFileNames;
+	}
 
-    public void setWiTypeEnum(ITypeOpt wiTypeEnum) {
-        this.wiTypeEnum = wiTypeEnum;
-    }
-
-    public List<String> getJsFileNames() {
-        return jsFileNames;
-    }
-
-    public void setJsFileNames(List<String> jsFileNames) {
-        this.jsFileNames = jsFileNames;
-    }
-
-  
+	public void setJsFileNames(String jsFileNames) {
+		this.jsFileNames = jsFileNames;
+	}
 }
