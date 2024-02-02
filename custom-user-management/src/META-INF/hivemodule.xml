@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module id="com.intelizign.polarion.user_management.servlet" version="1.0.0">
+
+	<contribution configuration-id="com.polarion.xray.webui.administrationPageExtenders">
+		<extender name="Extension"
+				  parentNodeName="Custom User Management"
+				  pageUrl="/polarion/custom-user-manager/usermana?scope=$scope$" 
+				  projectScope="false"
+				  projectGroupScope="true"
+				  repositoryScope="true"/>
+	</contribution>
+</module>
+
+				<!--   parentNodeIconUrl="/polarion/custom-user-manager/um/assets/userExtensions.svg"  
+				  iconUrl="/polarion/custom-user-manager/um/assets/userInfo.svg"  -->
