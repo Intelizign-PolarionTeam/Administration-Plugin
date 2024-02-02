@@ -270,6 +270,7 @@ ArrayList<Integer> wiTypeCountsList = new ArrayList<>(conditionScriptCountMap.va
 			    IEnumObjectFactory value = entry.getValue();
 			    List<IEnumeration> Enum= value.getEnumeration("stakeholderRequirement", pro.getContextId()).getAllOptions();
 			System.out.println("Enum "+Enum);
+		
 			  
 			  
 			    // Now you can use 'key' and 'value' as needed
