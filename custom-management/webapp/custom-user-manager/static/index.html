@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="ISO-8859-1" />
+	<title></title>
+	<!-- Linking CSS file -->
+	<link rel="stylesheet" href="./resources/styles.css">
+
+
+</head>
+
+<body>
+	<div class="main-container" style="margin-bottom: 20px">
+		<div class="project-container">
+			<label class="title">Projects</label> <select class="form-control" id="projectDropDown" name="projectDiv"
+				onChange="projectInfo()">
+				<option>Select</option>
+			</select>
+		</div>
+	</div>
+	<div id="pre-post" class="pre-post" style="display:none;">
+		<a href="#" style="text-decoration:none;color: #005F87;">Pre-Posts Save Details</a>
+	</div>
+	<br>
+
+
+	<table class="polarion-rpw-table-content" style="display: none;">
+		<thead>
+			<tr class="table-header-row">
+				<th style="text-align: center;">WorkItem Type</th>
+				<th style="text-align: center;">Custom Fields</th>
+				<th style="text-align: center;">Custom Enumeration</th>
+				<th style="text-align: center;">WorkFlow Function</th>
+				<th style="text-align: center;">Workflow Condition</th>
+			</tr>
+		</thead>
+		<tbody id="userTableBody">
+		</tbody>
+	</table>
+	<br>
+	<table class="polarion-rpw-table-content" style="display: none;">
+
+		<thead>
+			<tr class="table-header-row">
+				<th style="text-align: center;">Document Types</th>
+				<th style="text-align: center;">Document Custom Fields</th>
+				<th style="text-align: center;">Document WorkFlow Function</th>
+				<th style="text-align: center;">Document Workflow Condition</th>
+			</tr>
+		</thead>
+		<tbody id="userTableBodyDoc">
+		</tbody>
+	</table>
+	<div id="myModal" class="modal">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<!-- Modal Header -->
+				<div class="modal-header">
+					<h4 class="modal-title" id="modalTitle"></h4>
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+				</div>
+
+				<!-- Modal Body -->
+				<div class="modal-body">
+					<p>Custom Field Count: <span id="customFieldCount"></span></p>
+					<p>Script Count: <span id="scriptcount"></span></p>
+					<!-- Add other details here -->
+				</div>
+
+				<!-- Modal Footer -->
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<!-- Linking JavaScript file -->
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="./resources/script.js"></script>
+</body>
+
+</html>
