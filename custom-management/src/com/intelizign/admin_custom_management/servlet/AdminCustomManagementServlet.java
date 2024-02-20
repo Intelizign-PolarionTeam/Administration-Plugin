@@ -52,12 +52,12 @@ public class AdminCustomManagementServlet extends HttpServlet {
 				case "getProjectList":
 					workItemCustomizationService.getProjectList(req, resp);
 					break;
-				case "getCustomizationDetails":
-					workItemCustomizationService.getCustomizationDetails(req, resp);
+				case "getCustomizationCountDetails":
+					workItemCustomizationService.getCustomizationCountDetails(req, resp);
 					
 					break;
-				case "getCustomizationDetailsPopup":
-					//workItemCustomizationServiceImpl.getCustomizationDetailsPop(req, resp);
+				case "getCustomizationDetails":
+					  workItemCustomizationService.getCustomizationDetails(req, resp);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid action specified");

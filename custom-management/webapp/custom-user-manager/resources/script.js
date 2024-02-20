@@ -5,7 +5,7 @@ $(document).ready(function() {
 		dataType: 'json',
 		success: function(response) {
 			const projectsList = response.projectsList;
-			const prePostHookMapObj = response.prePostHookMapObj		
+			const prePostHookMapObj = response.prePostHookMapObj
 			$('#pre-post a').on('click', function() {
 				showPopupForPrePost('Pre-Post Save Details', prePostHookMapObj);
 			});
@@ -23,252 +23,131 @@ $(document).ready(function() {
 				console.error('Failed to retrieve project list');
 			}
 		},
-		error: function(xhr, status, error) {
+		error: function(error) {
 			console.error('Error occurred while fetching project list:', error);
 		}
 	});
 });
 
-
-
 function projectInfo() {
-    const projectId = $("#projectDropDown").val();
-    alert("Selected project Id is: " + projectId);
-    $('.polarion-rpw-table-content').show();
-    const tbody = $('#userTableBody');
-    $('#pre-post').css('display', 'block');
-    $.ajax({
-        url: `usermana?action=getCustomizationDetails&projectId=${projectId}`,
-        type: "GET",
-        dataType: "json",
-        success: function(data) {
-            console.log("Response data:", data); // Log the entire response data
-            const wiCustomizationObj = data.customizationDetails;
-            const moduleCustomizationObj = data.moduleCustomizationDetails;
-            // Clear existing table content
-            $('#userTableBody').empty();
-            $('#userTableBodyDocument').empty();
-
-            $.each(wiCustomizationObj, function(index, wiCustom) {
-                console.log("wiCustom object:", wiCustom); // Log the entire object
-                if (wiCustom.hasOwnProperty('wiType') && wiCustom.hasOwnProperty('wiName') &&
-                    wiCustom.hasOwnProperty('customFieldCount') && wiCustom.hasOwnProperty('scriptcount') &&
-                    wiCustom.hasOwnProperty('customEnumerationCount') && wiCustom.hasOwnProperty('scriptFunctionCount')) {
-
-                    console.log("wiName is", wiCustom.wiName);
-                    var row = $('<tr>').addClass('table-content-row');
-                    row.append($('<td>').text(wiCustom.wiName).css('text-align', 'center'));
-
-                    // Process each count cell
-                    ['customFieldCount', 'scriptcount', 'customEnumerationCount', 'scriptFunctionCount'].forEach(function(countType) {
-                        var count = wiCustom[countType];
-                        var countCell = $('<td>').css('text-align', 'center');
-                        if (count > 0) {
-                            var hyperlink = $('<a>').addClass('clickable-cell').css({
-                                'color': 'rgb(83, 83, 245)',
-                                'cursor': 'pointer',
-                                'text-decoration': 'none' // Remove underline
-                            }).text(count);
-                            hyperlink.data('rowData', wiCustom);
-                            countCell.append(hyperlink);
-                        } else {
-                            countCell.text(count);
-                        }
-                        row.append(countCell);
-                    });
-
-                    $('#userTableBody').append(row);
-                }
-            });
-            documentInfo(moduleCustomizationObj);
-        },
-        error: function(xhr, status, error) {
-            console.error("Error occurred:", error);
-        }
-    });
-}
-
-$(document).on('click', '.clickable-cell', function() {
-    var rowData = $(this).data('rowData');
-    showModalPopup(rowData);
-});
-
-function documentInfo(moduleCustomizationObj) {
-    $.each(moduleCustomizationObj, function(index, moduleCustom) {
-        console.log("moduleCustom object:", moduleCustom); // Log the entire object
-        if (moduleCustom.hasOwnProperty('moduleType') && moduleCustom.hasOwnProperty('moduleCustomFieldCount') &&
-            moduleCustom.hasOwnProperty('moduleWorkflowConditionCount') && moduleCustom.hasOwnProperty('moduleWorkflowFunctionCount')) {
-
-            console.log("moduleType is", moduleCustom.moduleType);
-            var row = $('<tr>').addClass('table-content-row');
-            row.append($('<td>').text(moduleCustom.moduleType).css('text-align', 'center'));
-
-            // Process each count cell
-            ['moduleCustomFieldCount', 'moduleWorkflowConditionCount', 'moduleWorkflowFunctionCount'].forEach(function(countType) {
-                var count = moduleCustom[countType];
-                var countCell = $('<td>').css('text-align', 'center');
-                if (count > 0) {
-                    var hyperlink = $('<a>').addClass('clickable-cell').css({
-                        'color': 'rgb(83, 83, 245)',
-                        'cursor': 'pointer',
-                        'text-decoration': 'none' // Remove underline
-                    }).text(count);
-                    hyperlink.data('rowData', moduleCustom);
-                    countCell.append(hyperlink);
-                } else {
-                    countCell.text(count);
-                }
-                row.append(countCell);
-            });
-
-            $('#userTableBodyDocument').append(row);
-        }
-    });
-}
-
-
-$(document).on('click', '.clickable-cell', function() {
-	var rowData = $(this).data('rowData');
-	showModalPopup(rowData);
-});
-
-function showModalPopup(rowData) {
-	$('#modalTitle').text(rowData.wiName + ' Details');
-	$('#customFieldCount').text(rowData.customFieldCount);
-	$('#scriptcount').text(rowData.scriptcount);
-	$('#customEnumerationCount').text(rowData.customEnumerationCount);
-	$('#scriptFunctionCount').text(rowData.scriptFunctionCount);
-	// Add other details to the modal
-
-	$('#myModal').show()
-}
-
-
-
-
-$(document).on('click', '.customFieldCount, .customEnumerationCount, .scriptFunctionCount, .scriptCount,.customFieldListModuleCount,.scriptDocumentFunctionCount,.scriptDocumentCount', function(e) {
-	e.preventDefault();
-
-	var type = $(this).data('type');
-	var column = $(this).data('column');
-	var projectid = $("#projectDropDown").val();
-	var columnName = $(this).closest('table').find('th').eq($(this).closest('td').index()).text().trim();
-
+	const projectId = $("#projectDropDown").val();
+	alert("Selected project Id is: " + projectId);
+	$('.polarion-rpw-table-content').show();
+	$('#pre-post').css('display', 'block');
 	$.ajax({
-		url: `usermana?action=getCustomizationDetailsPopup&type=${type}&projectid=${projectid}&column=${columnName}`, // Include type and column parameters in the URL
+		url: `usermana?action=getCustomizationCountDetails&projectId=${projectId}`,
 		type: "GET",
 		dataType: "json",
 		success: function(data) {
-			const customFields = data.customFields;
-			const customNames = data.customFieldNames;
-			const workItemType = data.type;
-			var actionScripts = data.actionScripts;
-			var typeIdPrefixList = data.typeIdPrefixList;
-			console.log("data ", data)
-			$('#pre-post').css('display', 'block');
 
-			if (Object.keys(actionScripts).length > 0) {
-				showPopup('Action Scripts', Object.entries(actionScripts), 'Action ID', 'Script Name');
-			} else if (Object.keys(customFields).length > 0) {
-				showPopup('Custom Fields', Object.entries(customFields), 'Custom ID', 'Custom Name');
-			} else if (Object.keys(typeIdPrefixList).length > 0) {
-				showPopupForCustomEnumeration(typeIdPrefixList, workItemType);
-			}
+			const wiCustomizationObj = data.customizationCountDetails;
+			const moduleCustomizationObj = data.moduleCustomizationDetails;
+			console.log("customizationDetails:", wiCustomizationObj);
+			console.log("moduleCustomizationObj:", moduleCustomizationObj);
+			// Clear existing table content
+			$('#userTableBody').empty();
+			$('#userTableBodyDocument').empty();
+
+			workItemCustomizationTable(wiCustomizationObj);
+			moduleCustomizationTable(moduleCustomizationObj);
 		},
-
-		error: function(xhr, status, error) {
+		error: function(error) {
 			console.error("Error occurred:", error);
 		}
 	});
+}
+
+function workItemCustomizationTable(wiCustomizationObj) {
+	$.each(wiCustomizationObj, function(index, wiCustom) {
+		console.log("wiCustom object:", wiCustom);
+		if (wiCustom.hasOwnProperty('wiType') && wiCustom.hasOwnProperty('wiName') &&
+			wiCustom.hasOwnProperty('customFieldCount') && wiCustom.hasOwnProperty('scriptCount') &&
+			wiCustom.hasOwnProperty('customEnumerationCount') && wiCustom.hasOwnProperty('scriptFunctionCount')) {
+
+			console.log("wiName is", wiCustom.wiName);
+			var row = $('<tr>').addClass('table-content-row');
+			row.append($('<td>').text(wiCustom.wiName).css('text-align', 'center'));
+
+			['customFieldCount', 'scriptCount', 'customEnumerationCount', 'scriptFunctionCount'].forEach(function(countType) {
+				var count = wiCustom[countType];
+				var countCell = $('<td>').css('text-align', 'center');
+				if (count > 0) {
+					var hyperlink = $('<a>').addClass('data-span clickable-cell')
+						.text(count)
+						.data('heading', wiCustom.wiType)
+						.data('type', countType);
+						
+					countCell.append(hyperlink);
+				} else {
+					countCell.text(count);
+				}
+				row.append(countCell);
+			});
+
+			$('#userTableBody').append(row);
+		}
+	});
+}
+
+function moduleCustomizationTable(moduleCustomizationObj) {
+	$.each(moduleCustomizationObj, function(index, moduleCustom) {
+		console.log("moduleCustom object:", moduleCustom);
+
+		if (moduleCustom.hasOwnProperty('moduleType') && moduleCustom.hasOwnProperty('moduleCustomFieldCount') &&
+			moduleCustom.hasOwnProperty('moduleWorkflowFunctionCount') && moduleCustom.hasOwnProperty('moduleWorkflowConditionCount')) {
+
+			console.log("its working");
+			var row = $('<tr>').addClass('table-content-row');
+			row.append($('<td>').text(moduleCustom.moduleType).css('text-align', 'center'));
+
+			['moduleCustomFieldCount', 'moduleWorkflowFunctionCount', 'moduleWorkflowConditionCount'].forEach(function(countType) {
+				var count = moduleCustom[countType];
+				var countCell = $('<td>').css('text-align', 'center');
+				if (count > 0) {
+					var hyperlink = $('<a>').addClass('data-span clickable-cell')
+						.text(count)
+						.data('heading', moduleCustom.moduleType)
+						.data('type', countType);
+
+
+					countCell.append(hyperlink);
+				} else {
+					countCell.text(count);
+				}
+				row.append(countCell);
+			});
+
+			$('#userTableBodyDocument').append(row);
+		}
+	});
+}
+
+
+$(document).on('click', '.clickable-cell', function() {
+	const projectId = $("#projectDropDown").val();
+	alert("Selected project Id is: " + projectId);
+    var heading = $(this).data('heading');
+    var type = $(this).data('type');
+    console.log("Heading: " + heading + "\nType: " + type);
+
+    // Make an AJAX call
+    $.ajax({
+        url: `usermana?action=getCustomizationDetails&heading=${heading}&type=${type}&projectId=${projectId}`,
+        method: 'GET',
+
+        success: function(response) {
+  		console.log("Response is",response)
+        },
+        error: function(error) {
+            // Handle error
+            console.error("Error Message is", error);
+        }
+    });
 });
 
-function showPopup(scriptType, scriptList, headerText1, headerText2) {
-	$('#popupModel').css('display', 'block');
-	const modal = $('<div>').addClass('modal');
-	const modalContent = $('<div>').addClass('modal-content');
-	const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(scriptType);
 
-	const popupBody = $('<div>').addClass('popup-body').css({
-		'max-height': '300px',
-		'overflow-y': 'auto'
-	});
 
-	const table = $('<table>').addClass('table-main');
 
-	const tableHeader = $('<thead>');
-	const tableHeaderRow = $('<tr>').addClass('table-header-row');
-	tableHeaderRow.append($('<th>').text(headerText1));
-	if (headerText2) {
-		tableHeaderRow.append($('<th>').text(headerText2));
-	}
-	tableHeader.append(tableHeaderRow);
-
-	const tableBody = $('<tbody>').attr('id', 'popupDetailsTable');
-	scriptList.forEach(item => {
-		const tableContentRow = $('<tr>').addClass('table-content-row');
-		tableContentRow.append($('<td>').text(item[0]));
-		if (item[1] && headerText2) {
-			tableContentRow.append($('<td>').text(item[1]));
-		}
-		tableBody.append(tableContentRow);
-	});
-
-	table.append(tableHeader, tableBody);
-	popupBody.append(table);
-
-	const popupFooter = $('<div>').addClass('popup-footer');
-	const closeBtn = $('<span>').addClass('btn-popup-close').text('Close').on('click', function() {
-		modal.hide();
-		$('#popupModel').css('display', 'none');
-	});
-
-	popupFooter.append(closeBtn);
-	modalContent.append(popupHeading, popupBody, popupFooter);
-	modal.append(modalContent);
-	$('#pre-post').append(modal);
-	modal.show();
-}
-
-function showPopupForCustomEnumeration(typeIdPrefixList, workItemType) {
-	$('#popupModel').css('display', 'block');
-	const modal = $('<div>').addClass('modal');
-	const modalContent = $('<div>').addClass('modal-content');
-	const popupHeading = $('<h4>').addClass('popup-heading').text(workItemType);
-
-	const popupBody = $('<div>').addClass('popup-body').css({
-		'max-height': '300px',
-		'overflow-y': 'auto'
-	});
-
-	const table = $('<table>').addClass('table-main');
-
-	const tableHeader = $('<thead>');
-	const tableHeaderRow = $('<tr>').addClass('table-header-row');
-	tableHeaderRow.append($('<th>').text('Enumeration Value'));
-	tableHeader.append(tableHeaderRow);
-
-	const tableBody = $('<tbody>').attr('id', 'popupDetailsTable');
-	for (const value of typeIdPrefixList) {
-		const tableContentRow = $('<tr>').addClass('table-content-row');
-		tableContentRow.append($('<td>').text(value));
-		tableBody.append(tableContentRow);
-	}
-
-	table.append(tableHeader, tableBody);
-	popupBody.append(table);
-
-	const popupFooter = $('<div>').addClass('popup-footer');
-	const closeBtn = $('<span>').addClass('btn-popup-close').text('Close').on('click', function() {
-		modal.hide();
-		$('#popupModel').css('display', 'none');
-	});
-
-	popupFooter.append(closeBtn);
-	modalContent.append(popupHeading, popupBody, popupFooter);
-	modal.append(modalContent);
-	$('#pre-post').append(modal);
-	modal.show();
-}
 
 function showPopupForPrePost(scriptType, scriptList) {
 	$('#popupModel').css('display', 'block');

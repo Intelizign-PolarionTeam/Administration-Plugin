@@ -2,8 +2,7 @@
 <module id="com.intelizign.polarion.user_management.servlet" version="1.0.0">
 
 	<contribution configuration-id="com.polarion.xray.webui.administrationPageExtenders">
-		<extender name="Extension"
-				  parentNodeName="Custom User Management"
+		<extender name="Customization Manager"
 				  pageUrl="/polarion/custom-user-manager/usermana?scope=$scope$" 
 				  projectScope="false"
 				  projectGroupScope="false"
