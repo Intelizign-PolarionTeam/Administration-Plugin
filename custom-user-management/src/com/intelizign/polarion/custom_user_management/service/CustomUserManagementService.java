@@ -3,9 +3,6 @@ package com.intelizign.polarion.custom_user_management.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -296,7 +293,7 @@ public class CustomUserManagementService {
 						  JSONObject reportDetails=new JSONObject();
 						  Date created=reports.getCreated();
 						  Date updatedDate=reports.getUpdated();
-					      String pattern = "yyyy-MM-dd";
+					      String pattern = "dd-MM-yyyy";
 					      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
 						  String CreatedDate = simpleDateFormat.format(created);
 						  String UpdatedDates=simpleDateFormat.format(updatedDate);
