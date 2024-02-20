@@ -309,7 +309,6 @@ public class CustomUserManagementService {
 			dataObj.put("reportDetails",arrList);
 			data.add(dataObj);
 			}
-			
 			}
 			jsonObject.put("data", data);			
 			out.println(jsonObject); 
