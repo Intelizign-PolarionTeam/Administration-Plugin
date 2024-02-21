@@ -68,14 +68,14 @@ function workItemCustomizationTable(wiCustomizationObj) {
 			var row = $('<tr>').addClass('table-content-row');
 			row.append($('<td>').text(wiCustom.wiName).css('text-align', 'center'));
 
-			['customFieldCount', 'scriptCount', 'customEnumerationCount', 'scriptFunctionCount'].forEach(function(countType) {
+			['customFieldCount', 'customEnumerationCount', 'scriptCount', 'scriptFunctionCount'].forEach(function(countType) {
 				var count = wiCustom[countType];
 				var countCell = $('<td>').css('text-align', 'center');
 				if (count > 0) {
 					var hyperlink = $('<a>').addClass('data-span clickable-cell')
 						.text(count)
-						.data('heading', wiCustom.wiType)
-						.data('type', countType);
+						.data('heading', countType)
+						.data('type',  wiCustom.wiType);
 						
 					countCell.append(hyperlink);
 				} else {
@@ -93,21 +93,21 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 	$.each(moduleCustomizationObj, function(index, moduleCustom) {
 		console.log("moduleCustom object:", moduleCustom);
 
-		if (moduleCustom.hasOwnProperty('moduleType') && moduleCustom.hasOwnProperty('moduleCustomFieldCount') &&
+		if (moduleCustom.hasOwnProperty('moduleType') && moduleCustom.hasOwnProperty('moduleName') && moduleCustom.hasOwnProperty('moduleCustomFieldCount') &&
 			moduleCustom.hasOwnProperty('moduleWorkflowFunctionCount') && moduleCustom.hasOwnProperty('moduleWorkflowConditionCount')) {
 
 			console.log("its working");
 			var row = $('<tr>').addClass('table-content-row');
-			row.append($('<td>').text(moduleCustom.moduleType).css('text-align', 'center'));
+			row.append($('<td>').text(moduleCustom.moduleName).css('text-align', 'center'));
 
-			['moduleCustomFieldCount', 'moduleWorkflowFunctionCount', 'moduleWorkflowConditionCount'].forEach(function(countType) {
+			['moduleCustomFieldCount', 'moduleWorkflowConditionCount', 'moduleWorkflowFunctionCount'].forEach(function(countType) {
 				var count = moduleCustom[countType];
 				var countCell = $('<td>').css('text-align', 'center');
 				if (count > 0) {
 					var hyperlink = $('<a>').addClass('data-span clickable-cell')
 						.text(count)
-						.data('heading', moduleCustom.moduleType)
-						.data('type', countType);
+						.data('heading', countType)
+						.data('type', moduleCustom.moduleType);
 
 
 					countCell.append(hyperlink);
@@ -130,13 +130,13 @@ $(document).on('click', '.clickable-cell', function() {
     var type = $(this).data('type');
     console.log("Heading: " + heading + "\nType: " + type);
 
-    // Make an AJAX call
+
     $.ajax({
         url: `usermana?action=getCustomizationDetails&heading=${heading}&type=${type}&projectId=${projectId}`,
         method: 'GET',
 
         success: function(response) {
-  		console.log("Response is",response)
+  		console.log("Response is",response.customizationDetailsResponseJson)
         },
         error: function(error) {
             // Handle error

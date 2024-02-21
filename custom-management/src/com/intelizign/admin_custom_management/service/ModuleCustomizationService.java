@@ -13,14 +13,22 @@ import com.polarion.alm.tracker.workflow.config.IAction;
 
 public interface ModuleCustomizationService {
 	
-	List<Map<String, Object>> getCustomizationDetails(HttpServletRequest req, HttpServletResponse resp)throws Exception;
+	List<Map<String, Object>> getModuleCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp)throws Exception;
 	
-	void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt wiTypeEnum) throws Exception;
+	void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception;
+	
+	Map<String, Object>  getModuleCustomizationDetails(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading) throws Exception;
 
-	void getModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt wiTypeEnum) throws Exception;
+	void getModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
 
-	void getModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt wiTypeEnum) throws Exception;
+	void getModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt moduleTypeEnum) throws Exception;
 
-	int getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt wiTypeEnum) throws Exception;
+	int getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
+
+	void getModuleWorkFlowFunctionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception;
+	
+	void  getModuleWorkFlowConditionDetails(ITypeOpt moduleType, ITrackerProject projectId) throws Exception;
+	
+	void  getModuleCustomFieldDetails(ITypeOpt moduleType, ITrackerProject projectid) throws Exception;
 
 }

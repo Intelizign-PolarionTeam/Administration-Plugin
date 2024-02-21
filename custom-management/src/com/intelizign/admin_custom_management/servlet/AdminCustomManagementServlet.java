@@ -3,6 +3,7 @@ package com.intelizign.admin_custom_management.servlet;
 import com.intelizign.admin_custom_management.impl.ModuleCustomizationServiceImpl;
 import com.intelizign.admin_custom_management.impl.WorkItemCustomizationServiceImpl;
 import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
+import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
 import com.polarion.platform.service.repository.IRepositoryService;
 import com.polarion.alm.tracker.ITrackerService;
 import com.polarion.platform.ITransactionService;
@@ -26,8 +27,10 @@ public class AdminCustomManagementServlet extends HttpServlet {
 			.lookupService(ITransactionService.class);
 	private static final IRepositoryService repositoryService = (IRepositoryService) PlatformContext.getPlatform()
 			.lookupService(IRepositoryService.class);
+
 	private ModuleCustomizationService moduleCustomizationService ;
-	private WorkItemCustomizationServiceImpl workItemCustomizationService;
+	private WorkItemCustomizationService workItemCustomizationService ;
+	
 
 	
 	@Override
