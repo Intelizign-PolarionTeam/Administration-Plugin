@@ -32,7 +32,102 @@ $(document).ready(function() {
 	});
 });
 
- function reportInfo() {
+function reportData()
+{
+	 const projectId = $("#projectDropDown").val();
+    $('.polarion-rpw-table-content').show();
+    const tbody = $('#spaceReportTableBody');
+    $.ajax({
+        url: `usermana?action=getSpacesDetails&projectId=${projectId}`,
+        type: "GET",
+        dataType: "json",
+
+        success: function(respData) {
+            var spaceData = respData.data;
+            //alert("ok..")
+            var reportDetails=[];
+            for (var i = 0; i < spaceData.length; i++) {
+                 
+                for (var j = 0; j < spaceData[i].reportDetails.length; j++) {
+                    var object={
+						"space":spaceData[i].spaceName,
+						"reportName":spaceData[i].reportDetails[j].reportName,
+						"createdDates":spaceData[i].reportDetails[j].createdDates,
+						"updatedDates":spaceData[i].reportDetails[j].updatedDate,
+						"count":spaceData[i].reportDetails.length
+					}
+					console.log("object..........."+ JSON.stringify(object));
+					reportDetails.push(object);
+
+                }
+   
+            }
+            var tableData = "";
+            tableData += "<table>";
+            for(var i=0;i<reportDetails.length;i++)
+            {
+				tableData += "<tr>";
+				var tableValue = (i>0) ? (reportDetails[i].space != reportDetails[i-1].space) ? reportDetails[i].space : "" :reportDetails[i].space;
+				//console.log(tableValue);
+				  var polarionStartingUrl = "/polarion/#/project/";
+                    var mainUrl;
+                    var baseUrl = window.location.protocol + "//" + window.location.host;
+                    var reportNames = reportDetails[i].reportName;
+                    if(tableValue=="_default"){
+				     mainUrl = baseUrl + polarionStartingUrl + projectId + "/wiki/" + reportNames;
+				     }else{	
+                    mainUrl = baseUrl + polarionStartingUrl + projectId + "/wiki/" + tableValue + "/" + reportNames;
+                    }
+                    
+                    
+					tableData += "<td class='exportTd hidden'>" + tableValue + "</td>";
+					tableData += "<td class='showingTd' rowspan='reportDetails[i].count'>" + tableValue + "</td>";
+					tableData += "<td><a href='" + mainUrl + "' target='_blank' class='non-underline'>" + reportDetails[i].reportName + "</a></td>";
+					tableData += "<td>"+reportDetails[i].createdDates+"</td>";
+					tableData += "<td>"+reportDetails[i].updatedDates+"</td>";
+					tableData += "</tr>";	
+			}
+			tableData += "</table>";
+			//console.log(tableData);
+			document.getElementById("spaceReportTableBody").innerHTML = tableData;
+        },
+        error: function(e) {
+            console.log("Error ----" + e.message);
+        }
+    });
+}
+function exportExcel()
+{
+	console.log("This is table export details........");
+	var wb = XLSX.utils.book_new();
+    var tables = document.getElementsByClassName('export-table');
+    for (var i = 0; i < tables.length; i++) {
+        var table = tables[i];
+        var ws = XLSX.utils.table_to_sheet(table);
+        var sheetName = table.caption ? table.caption.innerText : "Sheet" + (i + 1);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        var range = XLSX.utils.decode_range(ws['!ref']);
+        var colWidths = [];
+        var rowHeights = [];
+        for (var r = range.s.r; r <= range.e.r; r++) {
+            for (var c = range.s.c; c <= range.e.c; c++) {
+                var cellAddress = {c: c, r: r};
+                var cell = ws[XLSX.utils.encode_cell(cellAddress)];
+                if (cell) {
+                    var cellContent = cell.v ? cell.v.toString() : '';
+                    var cellWidth = cellContent.length * 1.1; // Adjust based on your preference
+                    colWidths[c] = colWidths[c] ? Math.max(colWidths[c], cellWidth) : cellWidth;
+                    var cellHeight = cellContent.split('\n').length * 15; // Adjust based on your preference
+                    rowHeights[r] = rowHeights[r] ? Math.max(rowHeights[r], cellHeight) : cellHeight;
+                }
+            }
+        }
+        ws['!cols'] = colWidths.map(function(width) { return { wch: width }; });
+        ws['!rows'] = rowHeights.map(function(height) { return { hpx: height }; });
+    }
+    XLSX.writeFile(wb, 'customizationDetails.xlsx');
+}
+ /*function reportInfo() {
     const projectId = $("#projectDropDown").val();
     $('.polarion-rpw-table-content').show();
     const tbody = $('#spaceReportTableBody');
@@ -83,7 +178,7 @@ $(document).ready(function() {
             console.log("Error ----" + e.message);
         }
     });
-}
+}*/
 
 function pluginInfo() {
     $('.polarion-rpw-table-content').show();
@@ -145,8 +240,9 @@ function licenseDetails()
 }
 
 function projectInfo() {
-     reportInfo();
+    // reportInfo();
      pluginInfo();
+     reportData();
      
 	const projectId = $("#projectDropDown").val();
 	//alert("selected project Id is:" + projectId);

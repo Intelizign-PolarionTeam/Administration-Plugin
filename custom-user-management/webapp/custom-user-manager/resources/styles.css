@@ -155,4 +155,20 @@ polarion-rpw-table-header-row>th {
 .non-underline{
 text-decoration:none;
 }
-
+.btn-search {
+    min-width:80px;
+    border:1px#C1C1C1;
+    border-radius:8px;
+    background-color: gray;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom:5px;
+    font-size: 13px;
+    text-align: center;
+    padding:10px 12px;
+    background: -webkit-gradient(linear, left top, left bottom, from(#F0F0F0), to(#D7D7D7));
+}
+p.svelte-etjk7y {
+    margin-top:0.7rem;
+    font-size: 16px;
+}
