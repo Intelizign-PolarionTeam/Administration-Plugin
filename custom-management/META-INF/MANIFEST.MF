@@ -5,7 +5,6 @@ Bundle-SymbolicName: custom-management;singleton:=true
 Bundle-Version: 1.0.0
 Bundle-ClassPath: CustomUserManagement.jar
 Export-Package: com.intelizign.admin_custom_management.impl,
- com.intelizign.admin_custom_management.model,
  com.intelizign.admin_custom_management.service,
  com.intelizign.admin_custom_management.servlet
 Require-Bundle: com.polarion.portal.tomcat;bundle-version="9.0.65",

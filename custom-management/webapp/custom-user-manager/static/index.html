@@ -19,9 +19,7 @@
 			</select>
 		</div>
 	</div>
-	<div id="pre-post" class="pre-post" style="display:none;">
-		<a href="#" style="text-decoration:none;color: #005F87;">Pre-Posts Save Details</a>
-	</div>
+	
 	<br>
 
 
@@ -52,30 +50,20 @@
 		<tbody id="userTableBodyDocument">
 		</tbody>
 	</table>
-	<div id="myModal" class="modal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<!-- Modal Header -->
-				<div class="modal-header">
-					<h4 class="modal-title" id="modalTitle"></h4>
-					<button type="button" class="close" data-dismiss="modal">&times;</button>
-				</div>
+	<br>
+	<table class="polarion-rpw-table-content" style="display: none;">
 
-				<!-- Modal Body -->
-				<div class="modal-body">
-					<p>Custom Field Count: <span id="customFieldCount"></span></p>
-					<p>Script Count: <span id="scriptcount"></span></p>
-					<!-- Add other details here -->
-				</div>
-
-				<!-- Modal Footer -->
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-				</div>
-
-			</div>
-		</div>
-	</div>
+		<thead>
+			<tr class="table-header-row">
+				<th style="text-align: center;">Space</th>
+				<th style="text-align: center;">Live Report Name</th>
+				<th style="text-align: center;">Created Data</th>
+				<th style="text-align: center;">Updated Date</th>
+			</tr>
+		</thead>
+		<tbody id="liveReportTableBody">
+		</tbody>
+	</table>
 
 	<!-- Linking JavaScript file -->
 	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>

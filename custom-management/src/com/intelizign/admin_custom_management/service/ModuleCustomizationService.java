@@ -17,7 +17,7 @@ public interface ModuleCustomizationService {
 	
 	void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception;
 	
-	Map<String, Object>  getModuleCustomizationDetails(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading) throws Exception;
+	Map<Integer,Map<String, Object>>  getModuleCustomizationDetails(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading) throws Exception;
 
 	void getModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
 

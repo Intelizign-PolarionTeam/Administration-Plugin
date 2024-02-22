@@ -6,29 +6,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.intelizign.admin_custom_management.model.CustomizationDocumentCount;
-import com.intelizign.admin_custom_management.model.CustomizationWorkItemCount;
-import com.intelizign.admin_custom_management.model.CustomizationWorkItemData;
 import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
 import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
+import com.polarion.alm.projects.model.IFolder;
 import com.polarion.alm.projects.model.IProject;
 import com.polarion.alm.tracker.ITrackerService;
-import com.polarion.alm.tracker.internal.model.TypeOpt;
-import com.polarion.alm.tracker.model.IModule;
+import com.polarion.alm.tracker.model.IRichPage;
 import com.polarion.alm.tracker.model.ITrackerProject;
 import com.polarion.alm.tracker.model.ITypeOpt;
 import com.polarion.alm.tracker.workflow.config.IAction;
@@ -36,11 +34,9 @@ import com.polarion.alm.tracker.workflow.config.IOperation;
 import com.polarion.alm.tracker.workflow.config.IWorkflowConfig;
 import com.polarion.core.util.logging.Logger;
 import com.polarion.platform.ITransactionService;
-import com.polarion.platform.core.PlatformContext;
 import com.polarion.platform.persistence.ICustomFieldsService;
 import com.polarion.platform.persistence.IEnumeration;
 import com.polarion.platform.persistence.UnresolvableObjectException;
-import com.polarion.platform.persistence.model.IPObject;
 import com.polarion.platform.persistence.model.IPObjectList;
 import com.polarion.platform.service.repository.IRepositoryReadOnlyConnection;
 import com.polarion.platform.service.repository.IRepositoryService;
@@ -49,7 +45,7 @@ import com.polarion.subterra.base.data.model.IPrimitiveType;
 import com.polarion.subterra.base.data.model.IType;
 import com.polarion.subterra.base.location.ILocation;
 import com.polarion.subterra.base.location.Location;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationService {
 
@@ -65,11 +61,13 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	private ITransactionService transactionService;
 	private IRepositoryService repositoryService;
 	private ModuleCustomizationService moduleCustomizationService;
-	public Map<String, Object> customizationDetailsResponseData = new LinkedHashMap<>();
+	public Map<Integer, Map<String, Object>> customizationDetailsResponseData = new LinkedHashMap<>();
+	public Map<Integer, Map<String, Object>> liveReportDetailsResponseMap = new LinkedHashMap<>();
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	private int scriptCount, scriptFunctionCount, customEnumerationCount, customFieldCount;
+	private int wiWorkflowScriptConditionCount, wiWorkflowScriptFunctionCount, customEnumerationCount,
+			wiCustomFieldCount;
 
 	public WorkItemCustomizationServiceImpl(ITrackerService trackerService, ITransactionService transactionService,
 			IRepositoryService repositoryService, ModuleCustomizationService moduleCustomizationService) {
@@ -122,9 +120,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			ITrackerProject projectObject = trackerService.getTrackerProject(projectId);
 			List<ITypeOpt> workItemTypeEnum = trackerService.getTrackerProject(projectId).getWorkItemTypeEnum()
 					.getAvailableOptions(WORKITEM_TYPE);
+			if(!liveReportDetailsResponseMap.isEmpty()) {
+				liveReportDetailsResponseMap.clear();
+			}
 
 			List<Map<String, Object>> customizationCountDetailsList = new ArrayList<>();
-			
+
 			for (ITypeOpt wiTypeEnum : workItemTypeEnum) {
 
 				getWorkItemCustomizationCount(projectObject, wiTypeEnum);
@@ -132,19 +133,23 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 				Map<String, Object> customizationCountDetailsMap = new LinkedHashMap<>();
 				customizationCountDetailsMap.put("wiType", wiTypeEnum.getId());
 				customizationCountDetailsMap.put("wiName", wiTypeEnum.getName());
-				customizationCountDetailsMap.put("scriptCount", scriptCount);
-				customizationCountDetailsMap.put("scriptFunctionCount", scriptFunctionCount);
+				customizationCountDetailsMap.put("wiWorkflowScriptConditionCount", wiWorkflowScriptConditionCount);
+				customizationCountDetailsMap.put("wiWorkflowScriptFunctionCount", wiWorkflowScriptFunctionCount);
 				customizationCountDetailsMap.put("customEnumerationCount", customEnumerationCount);
-				customizationCountDetailsMap.put("customFieldCount", customFieldCount);
+				customizationCountDetailsMap.put("wiCustomFieldCount", wiCustomFieldCount);
 
 				customizationCountDetailsList.add(customizationCountDetailsMap);
 			}
+			
 			List<Map<String, Object>> moduleCustomizationCountDetailsList = moduleCustomizationService
 					.getModuleCustomizationCountDetails(req, resp);
+			
+			getLiveReportDetails(req,resp);
 
 			Map<String, Object> jsonResponse = new LinkedHashMap<>();
 			jsonResponse.put("customizationCountDetails", customizationCountDetailsList);
 			jsonResponse.put("moduleCustomizationDetails", moduleCustomizationCountDetailsList);
+			jsonResponse.put("liveReportDetailsResponse", liveReportDetailsResponseMap);
 			String jsonResponseString = objectMapper.writeValueAsString(jsonResponse);
 
 			resp.setContentType("application/json");
@@ -170,11 +175,11 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 
 	private void getWorkItemCustomFieldCount(ITrackerProject pro, ITypeOpt wiTypeEnum) {
 		try {
-			customFieldCount = 0;
+			wiCustomFieldCount = 0;
 			ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 			Collection<ICustomField> customFieldList = customFieldService.getCustomFields(WORKITEM_PROTOTYPE,
 					pro.getContextId(), wiTypeEnum.getId());
-			customFieldCount = customFieldList.size();
+			wiCustomFieldCount = customFieldList.size();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -183,7 +188,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	private void getWorkItemWorkFlowSciptCount(ITrackerProject pro, ITypeOpt wiTypeEnum) {
 
 		try {
-			scriptCount = 0;
+			wiWorkflowScriptConditionCount = 0;
 			IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig(
 					WorkItemCustomizationServiceImpl.WORKITEM_PROTOTYPE, wiTypeEnum.getId(), pro.getContextId());
 			Collection<IAction> actions = workFlow.getActions();
@@ -195,7 +200,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 						Map<String, String> conditionData = conditionOperation.getParams();
 						for (Map.Entry<String, String> entry : conditionData.entrySet()) {
 							if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER)) {
-								scriptCount++;
+								wiWorkflowScriptConditionCount++;
 							}
 						}
 					}
@@ -208,13 +213,13 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 
 	private void getWorkItemWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt wiTypeEnum) {
 		try {
-			scriptFunctionCount = 0;
+			wiWorkflowScriptFunctionCount = 0;
 			for (IAction action : actions) {
 
 				Set<IOperation> functions = action.getFunctions();
 				for (IOperation functionOperation : functions) {
 					if (functionOperation.getName().equals(WORKFLOW_FUNCTION_KEY)) {
-						scriptFunctionCount++;
+						wiWorkflowScriptFunctionCount++;
 					}
 				}
 			}
@@ -299,7 +304,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			String heading = req.getParameter("heading");
 			String projectId = req.getParameter("projectId");
 
-			if(!customizationDetailsResponseData.isEmpty()){
+			if (!customizationDetailsResponseData.isEmpty()) {
 				customizationDetailsResponseData.clear();
 			}
 			if (type != null && heading != null && projectId != null) {
@@ -308,56 +313,52 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 				List<ITypeOpt> workItemTypeEnum = trackerPro.getWorkItemTypeEnum().getAvailableOptions(WORKITEM_TYPE);
 				for (ITypeOpt wiType : workItemTypeEnum) {
 					if (wiType.getId().equalsIgnoreCase(type)) {
-						 redirectWorkItemCustomization
-								(heading, wiType, trackerPro);
+						redirectWorkItemCustomization(heading, wiType, trackerPro);
 					}
 				}
 
 				for (ITypeOpt moduleType : moduleTypeEnum) {
 					if (moduleType.getId().equalsIgnoreCase(type)) {
-					customizationDetailsResponseData = moduleCustomizationService
-						.getModuleCustomizationDetails(trackerPro, moduleType, heading);
+						customizationDetailsResponseData = moduleCustomizationService
+								.getModuleCustomizationDetails(trackerPro, moduleType, heading);
 					}
 				}
-				
-				
+
 			} else {
 				log.error("Passing Data is Not Acceptable");
 			}
-			System.out.println("customizationDetailsResponseData"+ customizationDetailsResponseData +"\n");
-			String customizationDetailsResponseJson = objectMapper.writeValueAsString(customizationDetailsResponseData);
-			
+			System.out.println("customizationDetailsResponseData" + customizationDetailsResponseData + "\n");
+			Map<String, Object> jsonResponse = new LinkedHashMap<>();
+			jsonResponse.put("customizationDetailsResponseData", customizationDetailsResponseData);
+
+			String customizationDetailsResponseJson = objectMapper.writeValueAsString(jsonResponse);
+
 			resp.setContentType("application/json");
 			resp.getWriter().write(customizationDetailsResponseJson);
-
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	private void redirectWorkItemCustomization(String heading, ITypeOpt workItemType, ITrackerProject trackerPro
-			) {
+
+	private void redirectWorkItemCustomization(String heading, ITypeOpt workItemType, ITrackerProject trackerPro) {
 		switch (heading) {
-		case "customFieldCount":
-			 getWorkItemCustomFieldDetails(workItemType, trackerPro);
-			 break;
+		case "wiCustomFieldCount":
+			getWorkItemCustomFieldDetails(workItemType, trackerPro);
+			break;
 		case "customEnumerationCount":
 			getcustomEnumerationDetails(workItemType, trackerPro);
 			break;
-		case "scriptFunctionCount":
+		case "wiWorkflowScriptFunctionCount":
 			getWorkItemWorkFlowFunctionDetails(workItemType, trackerPro);
 			break;
-		case "scriptCount":
+		case "wiWorkflowScriptConditionCount":
 			getWorkItemWorkFlowConditionDetails(workItemType, trackerPro);
 			break;
 		default:
 			break;
 		}
 	}
-
-	
-
-
 
 	private void getcustomEnumerationDetails(ITypeOpt wiType, ITrackerProject project) {
 		try {
@@ -391,6 +392,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	private void processEnumeration(BufferedReader readEnumerationXml, List<String> wiTypeList, ITypeOpt wiType)
 			throws IOException {
 		String line;
+		AtomicInteger id = new AtomicInteger(0);
 		Pattern pattern = Pattern.compile("<a href=\"(.*?)\">(.*?)</a>");
 		while ((line = readEnumerationXml.readLine()) != null) {
 			java.util.regex.Matcher matcher = pattern.matcher(line);
@@ -400,7 +402,9 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 						&& !extractedText.contains("custom-fields") && !extractedText.contains("calculated-fields")) {
 					String wiTypePrefix = extractedText.substring(0, extractedText.indexOf('-'));
 					if (wiTypePrefix.equals(wiType.getId())) {
-						customizationDetailsResponseData.put("customEnumeration", extractedText);
+						customizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+						customizationDetailsResponseData.get(id.get()).put("customEnumeration", extractedText);
+						id.getAndIncrement();
 					}
 				}
 			}
@@ -418,9 +422,9 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
-	
 	private void getWorkItemWorkFlowConditionDetails(ITypeOpt wiType, ITrackerProject project) {
 		try {
+			AtomicInteger id = new AtomicInteger(0);
 			IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig(WORKITEM_PROTOTYPE,
 					wiType.getId(), project.getContextId());
 			Collection<IAction> actions = workFlow.getActions();
@@ -430,9 +434,11 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 					if (conditionsOperation.getName().equals(WORKFLOW_CONDITION_KEY)) {
 						for (Map.Entry<String, String> entry : conditionsOperation.getParams().entrySet()) {
 							if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER)) {
-								customizationDetailsResponseData.put("actionId", action.getId());
-								customizationDetailsResponseData.put("actionName", action.getName());
-								customizationDetailsResponseData.put("attachedJsFile", entry.getValue());
+								customizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+								customizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
+								customizationDetailsResponseData.get(id.get()).put("actionName", action.getName());
+								customizationDetailsResponseData.get(id.get()).put("attachedJsFile", entry.getValue());
+								id.getAndIncrement();
 							}
 						}
 					}
@@ -444,26 +450,60 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	}
 
 	private void getWorkItemCustomFieldDetails(ITypeOpt wiType, ITrackerProject projectId) {
-		//System.out.println("getWorkItemCustomFieldDetails its Working");
+		AtomicInteger id = new AtomicInteger(0);
 		ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 		Collection<ICustomField> customFieldList = customFieldService.getCustomFields(WORKITEM_PROTOTYPE,
 				projectId.getContextId(), wiType.getId());
-		//System.out.println("custom Field List"+ customFieldList +"\n");
 		for (ICustomField cust : customFieldList) {
 			IType getType = cust.getType();
-			
-			customizationDetailsResponseData.put("customId", cust.getId());
-			customizationDetailsResponseData.put("customName", cust.getName());
-			if(getType instanceof IPrimitiveType) {
-				IPrimitiveType primitiveTypeObject = (IPrimitiveType) getType;
-				customizationDetailsResponseData.put("customType", primitiveTypeObject.getTypeName());
+			customizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+			customizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
+			customizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
+			System.out.println("Get Type Is" + getType.getClass().getName() + "object is" + getType + "\n");
+			if (getType instanceof IPrimitiveType) {
+				// IPrimitiveType primitiveTypeObject = (IPrimitiveType) getType;
+				// customizationDetailsResponseData.get(id.get()).put("customType",
+				// primitiveTypeObject.getTypeName());
 			}
+			id.getAndIncrement();
 		}
-		System.out.println("customization Details Response Data"+ customizationDetailsResponseData +"\n");
+		System.out.println("customization Details Response Data" + customizationDetailsResponseData + "\n");
+	}
+
+	public void getLiveReportDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		String projectId = req.getParameter("projectId");
+		List<IFolder> spaces = trackerService.getFolderManager().getFolders(projectId);
+		AtomicInteger id = new AtomicInteger(0);
+		for (IFolder space : spaces) {
+			Collection<IRichPage> liveReportsObj = trackerService.getRichPageManager().getRichPages().project(projectId)
+					.space(space.getName());
+			System.out.println("live Reports"+liveReportsObj+"\n");
+			for (IRichPage report : liveReportsObj) {
+				System.out.println();
+				String reportId = report.getPageName();
+				if (!reportId.equals("Home")) {
+					Date created = report.getCreated();
+					Date updatedDate = report.getUpdated();
+					String pattern = "dd-MM-yyyy";
+					SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+					String CreatedDate = simpleDateFormat.format(created);
+					String UpdatedDate = simpleDateFormat.format(updatedDate);
+					liveReportDetailsResponseMap.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+					liveReportDetailsResponseMap.get(id.get()).put("folderName", space.getName());
+					liveReportDetailsResponseMap.get(id.get()).put("createdDate", CreatedDate.toString());
+					liveReportDetailsResponseMap.get(id.get()).put("updatedDate", UpdatedDate.toString());
+					liveReportDetailsResponseMap.get(id.get()).put("reportName", report.getTitle());
+					id.getAndIncrement();
+				}
+			}	
+			
+		}
+	
+
 	}
 
 	private void getWorkItemWorkFlowFunctionDetails(ITypeOpt wiType, ITrackerProject project) {
-
+		AtomicInteger id = new AtomicInteger(0);
 		IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig("WorkItem", wiType.getId(),
 				project.getContextId());
 		Collection<IAction> actions = workFlow.getActions();
@@ -471,19 +511,19 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			Set<IOperation> functions = action.getFunctions();
 			for (IOperation functionOperation : functions) {
 				if (functionOperation.getName().equals("ScriptFunction")) {
-					System.out.println("functionOperation.getName() " + functionOperation.getName());
 					for (Map.Entry<String, String> entry : functionOperation.getParams().entrySet()) {
 						if (entry.getKey().equalsIgnoreCase("script")) {
 							System.out.println("action " + action.getId() + "," + entry.getValue());
-							customizationDetailsResponseData.put("actionId", action.getId());
-							customizationDetailsResponseData.put("actionName", action.getName());
-							customizationDetailsResponseData.put("attachedJsFile", entry.getValue());
+							customizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+							customizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
+							customizationDetailsResponseData.get(id.get()).put("actionName", action.getName());
+							customizationDetailsResponseData.get(id.get()).put("attachedJsFile", entry.getValue());
+							id.getAndIncrement();
 						}
 					}
 				}
 			}
 		}
-	
 
 	}
 

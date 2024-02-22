@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -13,8 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
 import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
 import com.polarion.alm.tracker.ITrackerService;
+import com.polarion.alm.tracker.model.IModule;
 import com.polarion.alm.tracker.model.ITrackerProject;
 import com.polarion.alm.tracker.model.ITypeOpt;
+import com.polarion.alm.tracker.model.IWorkItem;
 import com.polarion.alm.tracker.workflow.config.IAction;
 import com.polarion.alm.tracker.workflow.config.IOperation;
 import com.polarion.alm.tracker.workflow.config.IWorkflowConfig;
@@ -35,10 +39,10 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 	private static final String MODULE_TYPE_KEY = "type";
 	private static final String PROJECT_ID_KEY = "projectId";
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	private Map<String, Object> moduleCustomizationDetailsResponseData = new LinkedHashMap<>();
+	private Map<Integer ,Map<String, Object>> moduleCustomizationDetailsResponseData = new LinkedHashMap<>();
 
 	private ITrackerService trackerService;
-	private int moduleWorkflowConditionCount, moduleWorkflowFunctionCount, modulecustomFieldCount;
+	private int moduleWorkflowConditionCount, moduleWorkflowFunctionCount, modulecustomfieldCount;
 
 	public ModuleCustomizationServiceImpl(ITrackerService trackerService) {
 		this.trackerService = trackerService;
@@ -64,7 +68,7 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 				Map<String, Object> moduleCustomizationDetailsMap = new LinkedHashMap<>();
 				moduleCustomizationDetailsMap.put("moduleType", moduleType.getId());
 				moduleCustomizationDetailsMap.put("moduleName", moduleType.getName());
-				moduleCustomizationDetailsMap.put("moduleCustomFieldCount", modulecustomFieldCount);
+				moduleCustomizationDetailsMap.put("moduleCustomfieldCount", modulecustomfieldCount);
 				moduleCustomizationDetailsMap.put("moduleWorkflowFunctionCount", moduleWorkflowFunctionCount);
 				moduleCustomizationDetailsMap.put("moduleWorkflowConditionCount", moduleWorkflowConditionCount);
 
@@ -83,7 +87,7 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 	
 
 	@Override
-	public Map<String, Object>  getModuleCustomizationDetails(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading)
+	public Map<Integer, Map<String, Object>>  getModuleCustomizationDetails(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading)
 			throws Exception {
 		System.out.println("get Module CustomizationDetails"+heading+"\n");
 		redirectModuleCustomization( trackerPro, moduleTypeEnum,  heading);
@@ -96,7 +100,7 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 			throws Exception {
 		System.out.println("get Module CustomizationDetails"+heading+"\n");
 		switch (heading) {
-		case "moduleCustomFieldCount":
+		case "moduleCustomfieldCount":
 			System.out.println("module customFieldCount its working");
 			getModuleCustomFieldDetails(moduleTypeEnum, trackerPro);
 			break;
@@ -118,8 +122,8 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 	public void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception {
 
 		try {
-			modulecustomFieldCount = 0;
-			modulecustomFieldCount = getModuleCustomFieldCount(trackerPro, moduleTypeEnum);
+			modulecustomfieldCount = 0;
+			modulecustomfieldCount = getModuleCustomFieldCount(trackerPro, moduleTypeEnum);
 			getModuleWorkFlowConditionCount(trackerPro, moduleTypeEnum);
 
 		} catch (UnresolvableObjectException e) {
@@ -197,6 +201,7 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 	public void getModuleWorkFlowFunctionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception {
 		IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY, moduleType.getId(),
 				project.getContextId());
+		AtomicInteger id = new AtomicInteger(0);
 		Collection<IAction> actions = workFlowModule.getActions();
 		for (IAction action : actions) {
 			Set<IOperation> functions = action.getFunctions();
@@ -205,8 +210,11 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 					for (Map.Entry<String, String> entry : functionOperation.getParams().entrySet()) {
 						if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY)) {
 							System.out.println("action " + action.getId() + "," + entry.getValue());
-							moduleCustomizationDetailsResponseData.put("actionId", action.getId());
-							moduleCustomizationDetailsResponseData.put("actionName", action.getName());
+							moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+							moduleCustomizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
+							moduleCustomizationDetailsResponseData.get(id.get()).put("actionName", action.getName());
+							moduleCustomizationDetailsResponseData.get(id.get()).put("attachedJsFile", entry.getValue());
+							id.getAndIncrement();
 						}
 					}
 				}
@@ -220,6 +228,7 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 	public void getModuleWorkFlowConditionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception {
 		IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY, moduleType.getId(),
 				project.getContextId());
+		AtomicInteger id = new AtomicInteger(0);
 		Collection<IAction> actions = workFlowModule.getActions();
 		for (IAction action : actions) {
 			Set<IOperation> conditions = action.getConditions();
@@ -228,10 +237,12 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 					System.out.println("functionOperation.getName() " + conditionsOperation.getName());
 					for (Map.Entry<String, String> entry : conditionsOperation.getParams().entrySet()) {
 						if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY)) {
-							System.out.println("entry " + entry.getValue());
-							moduleCustomizationDetailsResponseData.put("actionId", action.getId());
-							moduleCustomizationDetailsResponseData.put("actionName", action.getName());
-							moduleCustomizationDetailsResponseData.put("attachedJsFile", entry.getValue());
+							System.out.println("attachedJsFile " + entry.getValue() + "Action Id " +action.getId() +"actionName is"+ action.getName()+"\n");
+							moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+							moduleCustomizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
+							moduleCustomizationDetailsResponseData.get(id.get()).put("actionName", action.getId());
+							moduleCustomizationDetailsResponseData.get(id.get()).put("attachedJsFile", entry.getValue());
+							id.getAndIncrement();
 						}
 					}
 				}
@@ -242,22 +253,23 @@ public  class ModuleCustomizationServiceImpl implements ModuleCustomizationServi
 
 	@Override
 	public void getModuleCustomFieldDetails(ITypeOpt moduleType, ITrackerProject projectId) throws Exception {
-		System.out.println("Get Module Custom Field Details Is Working");
+		AtomicInteger id = new AtomicInteger(0);
 		ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 		System.out.println("documentCustomFields ");
 		Collection<ICustomField> moduleCustomFieldList = customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY,
 				projectId.getContextId(), moduleType.getId());
+		System.out.println("Module Custom Field List is"+moduleCustomFieldList.size() );
 		for (ICustomField cust : moduleCustomFieldList) {
 			IType getType = cust.getType();
-			if(getType instanceof IPrimitiveType) {
-				
-			}
-			moduleCustomizationDetailsResponseData.put("customId", cust.getId());
-			moduleCustomizationDetailsResponseData.put("customName", cust.getName());
+			System.out.println("Custom Id is"+cust.getId()+"Custom Name is"+cust.getName()+"\n");
+			moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+			moduleCustomizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
+			moduleCustomizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
            if(getType instanceof IPrimitiveType) {
         	   IPrimitiveType modulePrimitiveType = (IPrimitiveType)getType;
-        		moduleCustomizationDetailsResponseData.put("customType", modulePrimitiveType.getTypeName());
+        	   moduleCustomizationDetailsResponseData.get(id.get()).put("customType", modulePrimitiveType.getTypeName());
 			}
+           id.getAndIncrement();
 		
 		}
 		
