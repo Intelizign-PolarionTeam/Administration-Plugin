@@ -18,7 +18,7 @@
 
     <servlet>
         <servlet-name>UserManagement</servlet-name>
-        <servlet-class>com.intelizign.polarion.custom_user_management.servlet.CustomUserManagementServlet</servlet-class>
+        <servlet-class>com.intelizign.admin_custom_management.servlet.AdminCustomManagementServlet</servlet-class>
 
         <init-param>
             <param-name>debug</param-name>
