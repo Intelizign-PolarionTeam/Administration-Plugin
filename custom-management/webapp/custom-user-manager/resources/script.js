@@ -9,7 +9,7 @@ $(document).ready(function() {
 			if (response) {
 				var projectSelect = $('.form-control');
 				projectSelect.empty();
-				projectSelect.append($('<option>', { value: '', text: 'Select a project' }));
+				projectSelect.append($('<option>', { value: '', text: '-- Select a project --' }));
 				$.each(projectsList, function(id, name) {
 					projectSelect.append($('<option>', {
 						value: id,
@@ -28,7 +28,11 @@ $(document).ready(function() {
 
 function projectInfo() {
 	const projectId = $("#projectDropDown").val();
-	alert("Selected project Id is: " + projectId);
+	if (!projectId) {
+        alert("Please select a project");
+        return; 
+    }
+
 	$('.polarion-rpw-table-content').show();
 	$('.export-div').show();
 	$('.version-div').show();
@@ -45,12 +49,7 @@ function projectInfo() {
 			const pluginDetailsObj= data.pluginDetailsMap;
 			const prePostSaveScriptObj = data.prePostSaveScriptMap;
 			const getVersionDetails = data.getVersionDetails;
-			console.log("data ", getVersionDetails)
-			console.log("customizationDetails:", wiCustomizationObj);
-			console.log("moduleCustomizationObj:", moduleCustomizationObj);
-			console.log("liveReportDetailsResponse:", liveReportDetailsObj);
-			console.log("liveReportObj:", liveReportDetailsObj);
-			console.log(data.pluginDetailsMap);
+			
 			// Clear existing table content
 			$('#userTableBody').empty();
 			$('#userTableBodyDocument').empty();
@@ -70,12 +69,12 @@ function projectInfo() {
 
 function workItemCustomizationTable(wiCustomizationObj) {
 	$.each(wiCustomizationObj, function(index, wiCustom) {
-		console.log("wiCustom object:", wiCustom);
+		
 		if (wiCustom.hasOwnProperty('wiType') && wiCustom.hasOwnProperty('wiName') &&
 			wiCustom.hasOwnProperty('wiCustomFieldCount') && wiCustom.hasOwnProperty('wiWorkflowScriptConditionCount') &&
 			wiCustom.hasOwnProperty('customEnumerationCount') && wiCustom.hasOwnProperty('wiWorkflowScriptFunctionCount')) {
 
-			console.log("wiName is", wiCustom.wiName);
+			
 			var row = $('<tr>').addClass('table-content-row');
 			row.append($('<td>').text(wiCustom.wiName).css('text-align', 'center'));
 
@@ -133,12 +132,12 @@ function workItemCustomizationTable(wiCustomizationObj) {
 
 function moduleCustomizationTable(moduleCustomizationObj) {
 	$.each(moduleCustomizationObj, function(index, moduleCustom) {
-		console.log("moduleCustom object:", moduleCustom);
+		
 
 		if (moduleCustom.hasOwnProperty('moduleType') && moduleCustom.hasOwnProperty('moduleName') && moduleCustom.hasOwnProperty('moduleCustomfieldCount') &&
 			moduleCustom.hasOwnProperty('moduleWorkflowFunctionCount') && moduleCustom.hasOwnProperty('moduleWorkflowConditionCount')) {
 
-			console.log("its working");
+			
 			var row = $('<tr>').addClass('table-content-row');
 			row.append($('<td>').text(moduleCustom.moduleName).css('text-align', 'center'));
 
@@ -166,15 +165,21 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 
 function getVersionDetailsCustomizationTable(getVersionDetails) {
 	 $('#versionTableBody').empty();
+	   var row = $('<tr>').addClass('table-content-row');
     $.each(getVersionDetails, function(index, versionObj) {
         // Check if the object is not empty
         if (Object.keys(versionObj).length > 0) {
             Object.entries(versionObj).forEach(([property, value]) => {
-                var row = $('<tr>').addClass('table-content-row');
+              
                
-                var propertyCell = $('<td>').css({'text-align': 'center', 'font-weight': 'bold'}).text(property);
+               var propertyCell = $('<td>').css({
+    'text-align': 'center',
+    'font-size': '9px', // Ensure this is set correctly
+    'font-weight': 'bold'
+}).text(property);
+
                 
-                var valueCell = $('<td>').css('text-align', 'center').text(value);
+                var valueCell = $('<td>').css('text-align', 'center').css('font-size', '9px').text(value);
                 
                 
                 row.append(propertyCell, valueCell);
@@ -193,6 +198,7 @@ function getVersionDetailsCustomizationTable(getVersionDetails) {
 
 function prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj)
 {
+	 $('#prePostReportTableBody').empty();
 	  $.each(prePostSaveScriptObj, function(index, prePostObj) {
         if (prePostObj.hasOwnProperty('Name') && prePostObj.hasOwnProperty('Extension')) {
            
@@ -221,12 +227,13 @@ function prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj)
 
 
 function pluginDetailCustomizationTable(pluginDetailsObj) {
+	$('#pluginReportTableBody').empty();
     const uniqueFolderNames = {};
 
     $.each(pluginDetailsObj, function(index, pluginObj) {
-        console.log("pluginObj object:", pluginObj);
+        
         if (pluginObj.hasOwnProperty('pluginDeatils') && pluginObj.hasOwnProperty('pluginPath')) {
-            console.log("pluginDeatils is", pluginObj.pluginDeatils);
+            
 
             if (!uniqueFolderNames[pluginObj.pluginDeatils]) {
                 var row = $('<tr>').addClass('table-content-row');
@@ -254,34 +261,47 @@ function pluginDetailCustomizationTable(pluginDetailsObj) {
 
 function liveReportCustomizationTable(liveReportObj) {
     // Object to keep track of unique folder names
+    $('#liveReportTableBody').empty();
     const uniqueFolderNames = {};
 
+    // Get projectId from projectDropDown
+    const projectId = $("#projectDropDown").val();
+
     $.each(liveReportObj, function(index, reportObj) {
-        console.log("liveReportObj object:", reportObj);
         if (reportObj.hasOwnProperty('folderName') && reportObj.hasOwnProperty('createdDate') &&
             reportObj.hasOwnProperty('updatedDate') && reportObj.hasOwnProperty('reportName')) {
 
-            console.log("folderName is", reportObj.folderName);
-
             // Check if folder name is already encountered
             if (!uniqueFolderNames[reportObj.folderName]) {
+                // Initialize a row for the folder
                 var row = $('<tr>').addClass('table-content-row');
                 row.append($('<td>').text(reportObj.folderName).css('text-align', 'center'));
 
-                ['reportName', 'createdDate', 'updatedDate'].forEach(function(reportEvent) {
-                    var eventValue = reportObj[reportEvent];
-                    var countCell = $('<td>').css('text-align', 'center');
-                    if (eventValue > 0) {
-                        var hyperlink = $('<a>').addClass('data-span clickable-cell')
-                            .text(eventValue);
+                // Initialize an object to hold merged report details
+                var mergedReportDetails = {
+                    reportName: '',
+                    createdDate: reportObj.createdDate,
+                    updatedDate: reportObj.updatedDate
+                };
 
-                        countCell.append(hyperlink);
-                    } else {
-                        countCell.text(eventValue);
+                // Loop through all reports and merge their details for the same folder
+                $.each(liveReportObj, function(index, innerReportObj) {
+                    if (innerReportObj.folderName === reportObj.folderName) {
+                        // Decode the report name before generating the URL
+                        var decodedReportName = decodeURIComponent(innerReportObj.reportName);
+                        mergedReportDetails.reportName += (index > 0 ? '<br>' : '') + '<a href="' + getReportUrl(projectId, reportObj.folderName, decodedReportName) + '" target="_blank" style="text-decoration: none; font-weight: bold; color: #005F87;">' + decodedReportName + '</a>'; // Append report name with hyperlink and styling
                     }
+                });
+
+                // Add merged report details to the row
+                ['reportName', 'createdDate', 'updatedDate'].forEach(function(reportEvent) {
+                    var eventValue = mergedReportDetails[reportEvent];
+                    var countCell = $('<td>').css('text-align', 'center');
+                    countCell.html(eventValue ? eventValue : '-'); // Display the report name as HTML
                     row.append(countCell);
                 });
 
+                // Append the row to the table body
                 $('#liveReportTableBody').append(row);
 
                 // Mark folder name as encountered
@@ -291,24 +311,37 @@ function liveReportCustomizationTable(liveReportObj) {
     });
 }
 
+// Function to get report URL
+function getReportUrl(projectId, spaceName, reportName) {
+    var baseUrl = window.location.protocol + '//' + window.location.host;
+    var polarionStartingUrl = '/polarion/#/project/';
+    if (spaceName === '_default') {
+        return baseUrl + polarionStartingUrl + projectId + '/wiki/' + reportName;
+    } else {
+        return baseUrl + polarionStartingUrl + projectId + '/wiki/' + spaceName + '/' + reportName;
+    }
+}
+
+
+
 
 
 
 $(document).on('click', '.clickable-cell', function() {
     const projectId = $("#projectDropDown").val();
-    alert("Selected project Id is: " + projectId);
+    //alert("Selected project Id is: " + projectId);
     var heading = $(this).data('heading');
     var type = $(this).data('type');
-    console.log("Heading: " + heading + "\nType: " + type);
+   
 
     $.ajax({
         url: `usermana?action=getCustomizationDetails&heading=${heading}&type=${type}&projectId=${projectId}`,
         method: 'GET',
 
         success: function(response) {
-            console.log("Response is", response.customizationDetailsResponseData);
+           
             const customizationDetailsResponseData = response.customizationDetailsResponseData;
-            console.log("Heading after getting response"+heading);
+           
             if(heading === "moduleCustomfieldCount"  || heading === "wiCustomFieldCount" ){
             showCustomFieldModelPopup(type , customizationDetailsResponseData);
             }else if(heading === "moduleWorkflowConditionCount"  || heading === "wiWorkflowScriptConditionCount"){
@@ -331,7 +364,8 @@ $(document).on('click', '.clickable-cell', function() {
 
 
 function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
-	console.log("Script Type is:"+wiType+"customizationDetailsResponseData is"+customizationDetailsResponseData +"\n")
+	
+   
     $('#popupModel').css('display', 'block');
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
@@ -345,6 +379,7 @@ function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
     const tableHeaderRow = $('<tr>').addClass('table-header-row');
     tableHeaderRow.append($('<th>').text('Custom ID'));
     tableHeaderRow.append($('<th>').text('Custom Name'));
+     tableHeaderRow.append($('<th>').text('Custom Type'));
     tbody.append(tableHeaderRow);
 
  
@@ -355,9 +390,14 @@ function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
     for (const key in customizationDetailsResponseData) {
         if (customizationDetailsResponseData.hasOwnProperty(key)) {
             const customDetail = customizationDetailsResponseData[key];
+            console.log("customDetail ",customDetail)
             const tableContentRow = $('<tr>').addClass('table-content-row');
             tableContentRow.append($('<td>').text(customDetail.customId));
             tableContentRow.append($('<td>').text(customDetail.customName));
+             let customType = customDetail.customType || "Enum"; 
+            const lastSegment = customType.split('.').pop();
+            tableContentRow.append($('<td>').text(lastSegment));
+            tbody.append(tableContentRow);
             tbody.append(tableContentRow);
         }
     }
@@ -377,7 +417,7 @@ function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
 }
 
 function showWorkFlowConditionPopup(wiType, customizationDetailsResponseData) {
-	console.log("Script Type is:"+wiType+"customizationDetailsResponseData is"+customizationDetailsResponseData +"\n")
+	
     $('#popupModel').css('display', 'block');
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
@@ -425,7 +465,7 @@ function showWorkFlowConditionPopup(wiType, customizationDetailsResponseData) {
 }
 
 function showWorkFlowFunctionPopup(wiType, customizationDetailsResponseData) {
-	console.log("Script Type is:"+wiType+"customizationDetailsResponseData is"+customizationDetailsResponseData +"\n")
+	
     $('#popupModel').css('display', 'block');
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
@@ -473,7 +513,7 @@ function showWorkFlowFunctionPopup(wiType, customizationDetailsResponseData) {
 }
 
 function showCustomEnumerationModelPopup(wiType, customizationDetailsResponseData) {
-	console.log("Script Type is:"+wiType+"customizationDetailsResponseData is"+customizationDetailsResponseData +"\n")
+	
     $('#popupModel').css('display', 'block');
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');

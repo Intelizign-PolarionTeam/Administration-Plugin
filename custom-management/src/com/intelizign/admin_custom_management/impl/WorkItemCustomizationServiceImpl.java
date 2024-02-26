@@ -625,47 +625,60 @@ try {
 			customizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
 			customizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
 			System.out.println("Get Type Is" + getType.getClass().getName() + "object is" + getType + "\n");
-			if (getType instanceof IPrimitiveType) {
-				// IPrimitiveType primitiveTypeObject = (IPrimitiveType) getType;
-				// customizationDetailsResponseData.get(id.get()).put("customType",
-				// primitiveTypeObject.getTypeName());
-			}
+			 if(getType instanceof IPrimitiveType) {
+	        	   IPrimitiveType modulePrimitiveType = (IPrimitiveType)getType;
+	        	   customizationDetailsResponseData.get(id.get()).put("customType", modulePrimitiveType.getTypeName());
+				}
 			id.getAndIncrement();
 		}
 		System.out.println("customization Details Response Data" + customizationDetailsResponseData + "\n");
 	}
 
 	public void getLiveReportDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		String projectId = req.getParameter("projectId");
-		List<IFolder> spaces = trackerService.getFolderManager().getFolders(projectId);
-		AtomicInteger id = new AtomicInteger(0);
-		for (IFolder space : spaces) {
-			Collection<IRichPage> liveReportsObj = trackerService.getRichPageManager().getRichPages().project(projectId)
-					.space(space.getName());
-			System.out.println("live Reports"+liveReportsObj+"\n");
-			for (IRichPage report : liveReportsObj) {
-				System.out.println();
-				String reportId = report.getPageName();
-				if (!reportId.equals("Home")) {
-					Date created = report.getCreated();
-					Date updatedDate = report.getUpdated();
-					String pattern = "dd-MM-yyyy";
-					SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
-					String CreatedDate = simpleDateFormat.format(created);
-					String UpdatedDate = simpleDateFormat.format(updatedDate);
-					liveReportDetailsResponseMap.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
-					liveReportDetailsResponseMap.get(id.get()).put("folderName", space.getName());
-					liveReportDetailsResponseMap.get(id.get()).put("createdDate", CreatedDate.toString());
-					liveReportDetailsResponseMap.get(id.get()).put("updatedDate", UpdatedDate.toString());
-					liveReportDetailsResponseMap.get(id.get()).put("reportName", report.getTitle());
-					id.getAndIncrement();
-				}
-			}	
-			
-		}
-	
+	    String projectId = req.getParameter("projectId");
+	    List<IFolder> spaces = trackerService.getFolderManager().getFolders(projectId);
+	    AtomicInteger id = new AtomicInteger(0);
 
+	    for (IFolder space : spaces) {
+	        Collection<IRichPage> liveReportsObj = trackerService.getRichPageManager().getRichPages().project(projectId)
+	                .space(space.getName());
+	        System.out.println("live Reports" + liveReportsObj + "\n");
+
+	        // Create a list to store report details for this space
+	        List<Map<String, String>> spaceReportDetails = new ArrayList<>();
+
+	        for (IRichPage report : liveReportsObj) {
+	            System.out.println();
+	            String reportId = report.getPageName();
+	            if (!reportId.equals("Home")) {
+	                Date created = report.getCreated();
+	                Date updatedDate = report.getUpdated();
+	                String pattern = "dd-MM-yyyy";
+	                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+	                String CreatedDate = simpleDateFormat.format(created);
+	                String UpdatedDate = simpleDateFormat.format(updatedDate);
+
+	                // Create a map to store report details
+	                Map<String, String> reportDetails = new LinkedHashMap<>();
+	                reportDetails.put("folderName", space.getName());
+	                reportDetails.put("createdDate", CreatedDate.toString());
+	                reportDetails.put("updatedDate", UpdatedDate.toString());
+	                reportDetails.put("reportName", report.getId());
+
+	                // Add report details to the list of reports for this space
+	                spaceReportDetails.add(reportDetails);
+	            }
+	        }
+
+	        // Add all report details for this space to the response map
+	        for (Map<String, String> reportDetails : spaceReportDetails) {
+	            liveReportDetailsResponseMap.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+	            liveReportDetailsResponseMap.get(id.get()).putAll(reportDetails);
+	            id.getAndIncrement();
+	        }
+	    }
 	}
+
 
 	private void getWorkItemWorkFlowFunctionDetails(ITypeOpt wiType, ITrackerProject project) {
 		AtomicInteger id = new AtomicInteger(0);
