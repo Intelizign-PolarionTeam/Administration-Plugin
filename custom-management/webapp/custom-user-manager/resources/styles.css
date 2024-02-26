@@ -208,6 +208,7 @@ polarion-rpw-table-header-row>th {
 .table-header-row {
     background-color: #f0f0f0;
     font-family: "Segoe UI", "Selawik", "Open Sans", Arial, sans-serif;
+    font-size: 13px;
 }
 .table-header-row > th, .table-content-row > td {
     padding: 3px 6px;

@@ -27,12 +27,13 @@ $(document).ready(function() {
 });
 
 function projectInfo() {
+	$('#accordionExample .accordion-collapse').collapse('show');
 	const projectId = $("#projectDropDown").val();
 	if (!projectId) {
         alert("Please select a project");
         return; 
     }
-
+$('.custom').css('display', 'block');
 	$('.polarion-rpw-table-content').show();
 	$('.export-div').show();
 	$('.version-div').show();
@@ -76,7 +77,7 @@ function workItemCustomizationTable(wiCustomizationObj) {
 
 			
 			var row = $('<tr>').addClass('table-content-row');
-			row.append($('<td>').text(wiCustom.wiName).css('text-align', 'center'));
+			row.append($('<td>').text(wiCustom.wiName).css('text-align', 'left'));
 
 			['wiCustomFieldCount', 'customEnumerationCount', 'wiWorkflowScriptConditionCount', 'wiWorkflowScriptFunctionCount'].forEach(function(countType) {
 				var count = wiCustom[countType];
@@ -139,7 +140,7 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 
 			
 			var row = $('<tr>').addClass('table-content-row');
-			row.append($('<td>').text(moduleCustom.moduleName).css('text-align', 'center'));
+			row.append($('<td>').text(moduleCustom.moduleName).css('text-align', 'left'));
 
 			['moduleCustomfieldCount', 'moduleWorkflowConditionCount', 'moduleWorkflowFunctionCount'].forEach(function(countType) {
 				var count = moduleCustom[countType];
@@ -164,32 +165,50 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 }
 
 function getVersionDetailsCustomizationTable(getVersionDetails) {
-	 $('#versionTableBody').empty();
-	   var row = $('<tr>').addClass('table-content-row');
-    $.each(getVersionDetails, function(index, versionObj) {
-        // Check if the object is not empty
-        if (Object.keys(versionObj).length > 0) {
-            Object.entries(versionObj).forEach(([property, value]) => {
-              
-               
-               var propertyCell = $('<td>').css({
-    'text-align': 'center',
-    'font-size': '9px', // Ensure this is set correctly
-    'font-weight': 'bold'
-}).text(property);
+    $('#versionTableBody').empty();
 
-                
-                var valueCell = $('<td>').css('text-align', 'center').css('font-size', '9px').text(value);
-                
-                
-                row.append(propertyCell, valueCell);
-                
-               
-                $('#versionTableBody').append(row);
+    // Extract the values of getVersionDetails object into an array
+    var values = Object.values(getVersionDetails);
+
+    // Define an array to store the rows
+    var rows = [];
+
+    // Iterate over the values array
+    for (var i = 0; i < values.length; i++) {
+        var versionObj = values[i];
+
+        // Create a new row for every 2 elements
+        if (i % 2 === 0) {
+            var row = $('<tr>').addClass('table-content-row');
+            rows.push(row);
+        }
+
+        // Check if the versionObj is not empty and contains the required properties
+        if (Object.keys(versionObj).length > 0) {
+            // Loop through the properties of versionObj and create cells
+            Object.entries(versionObj).forEach(([property, value]) => {
+                var propertyCell = $('<td>').css({
+                    'text-align': 'center',
+                    'font-size': '9px',
+                    'font-weight': 'bold'
+                }).text(property);
+
+                var valueCell = $('<td>').css({
+                    'text-align': 'center',
+                    'font-size': '9px'
+                }).text(value);
+
+                // Append the cells to the last row in the rows array
+                rows[rows.length - 1].append(propertyCell, valueCell);
             });
         }
-    });
+    }
+
+    // Append all rows to the table body
+    $('#versionTableBody').append(rows);
 }
+
+
 
 
 
@@ -516,7 +535,11 @@ function showCustomEnumerationModelPopup(wiType, customizationDetailsResponseDat
 	
     $('#popupModel').css('display', 'block');
     const modal = $('<div>').addClass('modal');
-    const modalContent = $('<div>').addClass('modal-content');
+    const modalContent = $('<div>').addClass('modal-content').css({
+        'width': '80%'
+        
+    });;
+    
     const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(wiType);
     const popupBody = $('<div>').addClass('popup-body').css({
         'max-height': '300px',
