@@ -1,3 +1,23 @@
+html {
+   position: relative;
+   min-height: 100%;
+     }
+
+body {
+   margin: 0;
+   padding-bottom: 100px; 
+     }
+
+.footer-main-div {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: #f5f5f5;
+    padding: 10px 0;
+    }
+
+
+
 A,
 TD,
 LI,
@@ -10,6 +30,30 @@ P {
 	font-size: 13px;
 }
 
+.data-span.clickable-cell {
+  text-decoration: none;
+  color: #005F87;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none; 
+  font-weight: bold; 
+}
+
+
+.button-class
+{
+    min-width:80px;
+    border:1px #C1C1C1;
+    border-radius:8px;
+    background-color: gray;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom:5px;
+    font-size: 13px;
+    text-align: center;
+    padding:10px 12px;
+    background: -webkit-gradient(linear, left top, left bottom, from(#F0F0F0), to(#D7D7D7)); 
+}
 DIV {
 	font-family: "Segoe UI", "Selawik", "Open Sans", Arial, sans-serif;
 	font-size: 18px;
@@ -26,6 +70,38 @@ DIV {
 	background-color: #ededed;
 	padding: 2px 8px;
 	margin-bottom: 5px;
+	width: 100%;
+	margin-left: 10px;
+}
+
+.footer-main-div {
+	/*position: fixed;*/
+	bottom: 0;
+	
+}
+.footer-main-div, .footer-table {
+	 width: 100%;
+	 background-color: #2D373C;
+	 color: #fff;
+	 padding: 8px 20px;
+}
+.footer-heading-td h6 {
+	 font-weight: bold;
+	 font-size: 22px;
+}
+.footer-info-text {
+	 font-size:16px;
+	 color: #fff;
+	 margin-bottom: 3px;
+	 line-height: 18px;
+	 text-decoration: none;
+}
+.footer-info-text:hover {
+	 text-decoration: none;
+	 color: #fff;
+}
+.footer-info-td a:hover {
+	 text-decoration: none;
 }
 
 .title {
@@ -154,6 +230,7 @@ polarion-rpw-table-header-row>th {
 .table-header-row {
     background-color: #f0f0f0;
     font-family: "Segoe UI", "Selawik", "Open Sans", Arial, sans-serif;
+    font-size: 13px;
 }
 .table-header-row > th, .table-content-row > td {
     padding: 3px 6px;
@@ -168,6 +245,8 @@ polarion-rpw-table-header-row>th {
     text-decoration: none; 
 }
 .popup-body div{
-	 max-height: 300px;
-     overflow-y: auto;
+	max-height: 300px;
+    overflow-y: auto;
 }
+
+

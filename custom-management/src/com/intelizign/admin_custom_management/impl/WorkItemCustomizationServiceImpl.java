@@ -215,7 +215,6 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 				                            break;
 				                        case "userEmail":
 				                        	getLicenseDetailsMap.get(id.get()).put("userEmail", nodeValue);
-				                        
 				                        	id.getAndIncrement();
 				                            break;
 				                        case "userName":
@@ -315,6 +314,11 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 	
+	/*Get WorkItem Customization Count
+	  --Enumeration Count
+	  --Script ConditionCount with Attached Js FileName
+	  --Script FunctionCount  with Attached Js FileName
+	  */
 	private void getWorkItemCustomizationCount(ITrackerProject trackerPro, ITypeOpt wiTypeEnum) {
 		try {
 			getWorkItemCustomFieldCount(trackerPro, wiTypeEnum);
@@ -327,7 +331,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
-	
+	//Get WorkItem CustomField Count
 	private void getWorkItemCustomFieldCount(ITrackerProject pro, ITypeOpt wiTypeEnum) {
 		try {
 			wiCustomFieldCount = 0;
@@ -339,7 +343,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			e.printStackTrace();
 		}
 	}
-
+	//Get WorkItem Script Count
 	private void getWorkItemWorkFlowSciptCount(ITrackerProject pro, ITypeOpt wiTypeEnum) {
 
 		try {
@@ -365,7 +369,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			e.printStackTrace();
 		}
 	}
-
+	//Get WorkItem Function Count
 	private void getWorkItemWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt wiTypeEnum) {
 		try {
 			wiWorkflowScriptFunctionCount = 0;
@@ -383,7 +387,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 
 	}
-
+	//Get WorkItem Enumeration Count
 	private void getWorkItemCustomEnumerationCount(ITrackerProject pro, ITypeOpt wiTypeEnum) throws Exception {
 		try {
 			customEnumerationCount = 0;
@@ -431,7 +435,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
-
+	/*Get Customization Details In WorkItem
+	 * Custom Fields  -- custom Id, CustomType
+	 * Script Condition -- actionId, actionName, FileName
+	 * Script Function -- actionId, actionName, FileName
+	 * Custom Enumeration -- EnumerationId
+	 */
 	@Override
 	public void getCustomizationDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		try {
@@ -494,7 +503,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			break;
 		}
 	}
-
+	//Get Enumeration Details
 	private void getcustomEnumerationDetails(ITypeOpt wiType, ITrackerProject project) {
 		try {
 			String projectLocation = project.getLocation().getLastComponent();
@@ -557,6 +566,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
+	//Get WorkItem Script Condition Details
 	private void getWorkItemWorkFlowConditionDetails(ITypeOpt wiType, ITrackerProject project) {
 		try {
 			AtomicInteger id = new AtomicInteger(0);
@@ -583,7 +593,10 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			log.error("Error while Fetching Data in WorkItemWorkflow Condition" + e.getMessage());
 		}
 	}
-
+	
+	/*Get WorkItem Custom Field Details
+	 * CustomId and Custom Name
+	 */
 	private void getWorkItemCustomFieldDetails(ITypeOpt wiType, ITrackerProject projectId) {
 		AtomicInteger id = new AtomicInteger(0);
 		ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
@@ -603,7 +616,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	
 	}
-
+	/*Get Live Report Details 
+	 * Report Name
+	 * Folder Name
+	 * Created Data
+	 * Updated Data
+	 */
 	private void getLiveReportDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String projectId = req.getParameter("projectId");
 		List<IFolder> spaces = trackerService.getFolderManager().getFolders(projectId);
@@ -634,7 +652,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 
 	}
 
-
+	//Get WorkItem Function Details
 	private void getWorkItemWorkFlowFunctionDetails(ITypeOpt wiType, ITrackerProject project) {
 		AtomicInteger id = new AtomicInteger(0);
 		IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig(WORKITEM_PROTOTYPE, wiType.getId(),
