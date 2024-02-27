@@ -4,7 +4,7 @@
         "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app >
 
-    <display-name>custom-user-manager</display-name>
+    <display-name>custom-manager</display-name>
 
     <filter>
         <filter-name>DoAsFilter</filter-name>
@@ -17,7 +17,7 @@
     </filter-mapping>
 
     <servlet>
-        <servlet-name>UserManagement</servlet-name>
+        <servlet-name>CustomManager</servlet-name>
         <servlet-class>com.intelizign.admin_custom_management.servlet.AdminCustomManagementServlet</servlet-class>
 
         <init-param>
@@ -28,8 +28,8 @@
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>UserManagement</servlet-name>
-        <url-pattern>/usermana/*</url-pattern>
+        <servlet-name>CustomManager</servlet-name>
+        <url-pattern>/custommanager/*</url-pattern>
     </servlet-mapping>
 
     <session-config>

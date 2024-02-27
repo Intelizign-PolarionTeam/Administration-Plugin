@@ -3,7 +3,7 @@
 
 	<contribution configuration-id="com.polarion.xray.webui.administrationPageExtenders">
 		<extender name="Customization Manager"
-				  pageUrl="/polarion/custom-user-manager/usermana?scope=$scope$" 
+				  pageUrl="/polarion/custom-manager/custommanager?scope=$scope$" 
 				  projectScope="false"
 				  projectGroupScope="false"
 				  repositoryScope="true"/>

@@ -12,5 +12,4 @@ public interface WorkItemCustomizationService {
 	void getCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception;
 
 	void getCustomizationDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception;
-
 }

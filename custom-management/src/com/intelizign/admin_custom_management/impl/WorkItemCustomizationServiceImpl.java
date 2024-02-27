@@ -2,10 +2,10 @@ package com.intelizign.admin_custom_management.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,6 +20,11 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
 import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
@@ -61,9 +66,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	private ITransactionService transactionService;
 	private IRepositoryService repositoryService;
 	private ModuleCustomizationService moduleCustomizationService;
+	
 	public Map<Integer, Map<String, Object>> customizationDetailsResponseData = new LinkedHashMap<>();
 	public Map<Integer, Map<String, Object>> liveReportDetailsResponseMap = new LinkedHashMap<>();
-
+	public Map<Integer, Map<String, Object>> pluginDetailsMap  = new LinkedHashMap<>();
+	public Map<Integer, Map<String, Object>> prePostSaveScriptMap  = new LinkedHashMap<>();
+	public Map<Integer, Map<String, Object>> getLicenseDetailsMap  = new LinkedHashMap<>(); 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	private int wiWorkflowScriptConditionCount, wiWorkflowScriptFunctionCount, customEnumerationCount,
@@ -78,6 +86,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		this.moduleCustomizationService = moduleCustomizationService;
 	}
 
+	//Get all Project From the Current Server
+	@Override
 	public void getProjectList(HttpServletRequest req, HttpServletResponse resp) throws UnresolvableObjectException {
 		try {
 			Map<String, String> projectsObjMap = new LinkedHashMap<>();
@@ -94,15 +104,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 				}
 			}
 
-			Map<String, String> prePostHookMap = getPrePostSaveScript(resp);
 
-			// Create a response object
+
+		
 			Map<String, Object> responseObject = new LinkedHashMap<>();
 			responseObject.put("projectsList", projectsObjMap);
-			responseObject.put("prePostHookMapObj", prePostHookMap);
-
-			// Serialize the response object to JSON
-			ObjectMapper objectMapper = new ObjectMapper();
+			
 			String jsonResponse = objectMapper.writeValueAsString(responseObject);
 
 			resp.setContentType("application/json");
@@ -113,6 +120,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
+	//Base Method For get ModuleCustomizationCount and WorkItem Customization Count
+	@Override
 	public void getCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		try {
 
@@ -122,8 +131,17 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 					.getAvailableOptions(WORKITEM_TYPE);
 			if(!liveReportDetailsResponseMap.isEmpty()) {
 				liveReportDetailsResponseMap.clear();
+			}  
+			if(!pluginDetailsMap.isEmpty()) {
+				pluginDetailsMap.clear();
+			} 
+			if(!prePostSaveScriptMap.isEmpty()) {
+				prePostSaveScriptMap.clear();
 			}
-
+			
+			if(!getLicenseDetailsMap.isEmpty()) {
+				getLicenseDetailsMap.clear();
+			}
 			List<Map<String, Object>> customizationCountDetailsList = new ArrayList<>();
 
 			for (ITypeOpt wiTypeEnum : workItemTypeEnum) {
@@ -144,12 +162,19 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			List<Map<String, Object>> moduleCustomizationCountDetailsList = moduleCustomizationService
 					.getModuleCustomizationCountDetails(req, resp);
 			
-			getLiveReportDetails(req,resp);
-
+			getLiveReportDetails(req,resp);;
+			getPluginDetails(req,resp);
+			getprePostSaveScriptDetails(req,resp);
+            getLicenseDetails(req,resp);
+            
 			Map<String, Object> jsonResponse = new LinkedHashMap<>();
 			jsonResponse.put("customizationCountDetails", customizationCountDetailsList);
 			jsonResponse.put("moduleCustomizationDetails", moduleCustomizationCountDetailsList);
 			jsonResponse.put("liveReportDetailsResponse", liveReportDetailsResponseMap);
+			jsonResponse.put("pluginDetails", pluginDetailsMap);
+			jsonResponse.put("prePostSaveScriptDetails", prePostSaveScriptMap);
+			jsonResponse.put("licenseDetails", getLicenseDetailsMap);
+			
 			String jsonResponseString = objectMapper.writeValueAsString(jsonResponse);
 
 			resp.setContentType("application/json");
@@ -161,6 +186,135 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
+	//Read Polarion License File
+	 private void getLicenseDetails(HttpServletRequest req, HttpServletResponse resp)  {
+			try {
+				
+				  String folderPath = System.getProperty("com.polarion.home") + "/../polarion/license/";
+				  File folder = new File(folderPath);
+			        if (folder.exists() && folder.isDirectory()) {
+			            File licFile = new File(folder, "polarion.lic");
+			            if (licFile.exists() && licFile.isFile()) {
+			            	AtomicInteger id = new AtomicInteger(0);
+				            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+				            NodeList nodeList = factory.newDocumentBuilder().parse(licFile).getDocumentElement().getChildNodes();
+				            for (int i = 0; i < nodeList.getLength(); i++) {
+				                Node node = nodeList.item(i);
+				                if (node.getNodeType() == Node.ELEMENT_NODE) {
+				                    String nodeName = node.getNodeName();
+				                    String nodeValue = node.getTextContent().trim();
+				                    getLicenseDetailsMap.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+				                    switch (nodeName) {
+				                        case "licenseType":	      
+				                        	getLicenseDetailsMap.get(id.get()).put("licenseType", nodeValue);
+				                 	       id.getAndIncrement();
+				                            break;
+				                        case "userCompany":
+				                        	getLicenseDetailsMap.get(id.get()).put("userCompany", nodeValue);
+				                        	id.getAndIncrement();
+				                            break;
+				                        case "userEmail":
+				                        	getLicenseDetailsMap.get(id.get()).put("userEmail", nodeValue);
+				                        
+				                        	id.getAndIncrement();
+				                            break;
+				                        case "userName":
+				                        	getLicenseDetailsMap.get(id.get()).put("userName", nodeValue);
+				                        	id.getAndIncrement();
+				                            break;
+				                            
+				                           
+				                    }
+				                    
+				                }
+				            }
+				            
+			            }		      
+			        }			
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		 
+	    }
+	    //Get PrePost save Hook Details
+		private void getprePostSaveScriptDetails(HttpServletRequest req, HttpServletResponse resp) {
+			String folderPath = System.getProperty("com.polarion.home") + "/../scripts/" + "/workitemsave/";
+			File folder = new File(folderPath);
+			try {
+				AtomicInteger id = new AtomicInteger(0);
+				if (folder.exists() && folder.isDirectory()) {
+					for (File jsFile : folder.listFiles()) {
+						String content = readFileContent(jsFile);
+						Map<String, Object> scriptData = new HashMap<>();
+						scriptData.put("jsName", jsFile.getName());
+						String functionNames = "";
+						if (content.contains(WORKFLOW_FUNCTION_KEY)) {
+							functionNames = extractFunctionNames(content);
+						} else {
+							functionNames = "No functions found in the file.";
+						}
+						prePostSaveScriptMap.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+						prePostSaveScriptMap.get(id.get()).put("Name", jsFile.getName());
+						prePostSaveScriptMap.get(id.get()).put("Extension", functionNames);
+						id.getAndIncrement();
+					}
+				} else {
+					System.out.println("The specified folder does not exist or is not a directory.");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	 //Check Function Content in PrePost Save Script File
+	 private String extractFunctionNames(String content) {
+	        StringBuilder functions = new StringBuilder();
+	        Pattern pattern = Pattern.compile("function\\s+([\\w\\d_]+)\\s*\\(");
+	        java.util.regex.Matcher matcher = pattern.matcher(content);
+	        while (matcher.find()) {
+	            functions.append(matcher.group(1)).append(", ");
+	        }
+	        if (functions.length() > 0) {
+	            functions.setLength(functions.length() - 2); 
+	            return functions.toString();
+	        } else {
+	            return "No functions found in the file.";
+	        }
+	    }
+	//Read PrePost Save Script File Content
+	private String readFileContent(File file) {
+	    try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+	        StringBuilder contentBuilder = new StringBuilder();
+	        String line;
+	        while ((line = br.readLine()) != null) {
+	            contentBuilder.append(line).append("\n");
+	        }
+	        return contentBuilder.toString();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+
+
+	//Get Extension Details From the Current Server
+	private void getPluginDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		String path = System.getProperty("com.polarion.home") + "/extensions/";
+		File directory = new File(path);
+		AtomicInteger id = new AtomicInteger(0);
+		if (directory.exists() && directory.isDirectory()) {
+			File[] filesAndDirectories = directory.listFiles();
+			for (File fileOrDirectory : filesAndDirectories) {
+				if (fileOrDirectory.isDirectory()) {
+					pluginDetailsMap.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+					pluginDetailsMap.get(id.get()).put("pluginDeatils", fileOrDirectory.getName());
+					pluginDetailsMap.get(id.get()).put("pluginPath", fileOrDirectory.getPath());
+					id.getAndIncrement();
+				}
+			}
+
+		}
+	}
+	
 	private void getWorkItemCustomizationCount(ITrackerProject trackerPro, ITypeOpt wiTypeEnum) {
 		try {
 			getWorkItemCustomFieldCount(trackerPro, wiTypeEnum);
@@ -173,6 +327,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
+	
 	private void getWorkItemCustomFieldCount(ITrackerProject pro, ITypeOpt wiTypeEnum) {
 		try {
 			wiCustomFieldCount = 0;
@@ -276,28 +431,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 		}
 	}
 
-	private Map<String, String> getPrePostSaveScript(HttpServletResponse resp) {
-		try {
-			Map<String, String> hookMap = new HashMap<>();
-			String folderPath = System.getProperty("com.polarion.home") + "/../scripts/" + "/workitemsave/";
-			File folder = new File(folderPath);
-			if (folder.exists() && folder.isDirectory()) {
-				for (File jsFile : folder.listFiles()) {
-					hookMap.put(jsFile.getName(), folderPath);
-				}
-			} else {
-				System.out.println("The specified folder does not exist or is not a directory.");
-			}
-			if (!(hookMap.isEmpty())) {
 
-			}
-			return hookMap;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
+	@Override
 	public void getCustomizationDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		try {
 			String type = req.getParameter("type");
@@ -327,7 +462,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			} else {
 				log.error("Passing Data is Not Acceptable");
 			}
-			System.out.println("customizationDetailsResponseData" + customizationDetailsResponseData + "\n");
+		
 			Map<String, Object> jsonResponse = new LinkedHashMap<>();
 			jsonResponse.put("customizationDetailsResponseData", customizationDetailsResponseData);
 
@@ -459,27 +594,24 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			customizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
 			customizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
 			customizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
-			System.out.println("Get Type Is" + getType.getClass().getName() + "object is" + getType + "\n");
-			if (getType instanceof IPrimitiveType) {
-				// IPrimitiveType primitiveTypeObject = (IPrimitiveType) getType;
-				// customizationDetailsResponseData.get(id.get()).put("customType",
-				// primitiveTypeObject.getTypeName());
-			}
+	
+			 if(getType instanceof IPrimitiveType) {
+	        	   IPrimitiveType modulePrimitiveType = (IPrimitiveType)getType;
+	        	   customizationDetailsResponseData.get(id.get()).put("customType", modulePrimitiveType.getTypeName());
+				}
 			id.getAndIncrement();
 		}
-		System.out.println("customization Details Response Data" + customizationDetailsResponseData + "\n");
+	
 	}
 
-	public void getLiveReportDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	private void getLiveReportDetails(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String projectId = req.getParameter("projectId");
 		List<IFolder> spaces = trackerService.getFolderManager().getFolders(projectId);
 		AtomicInteger id = new AtomicInteger(0);
 		for (IFolder space : spaces) {
 			Collection<IRichPage> liveReportsObj = trackerService.getRichPageManager().getRichPages().project(projectId)
 					.space(space.getName());
-			System.out.println("live Reports"+liveReportsObj+"\n");
 			for (IRichPage report : liveReportsObj) {
-				System.out.println();
 				String reportId = report.getPageName();
 				if (!reportId.equals("Home")) {
 					Date created = report.getCreated();
@@ -502,18 +634,18 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 
 	}
 
+
 	private void getWorkItemWorkFlowFunctionDetails(ITypeOpt wiType, ITrackerProject project) {
 		AtomicInteger id = new AtomicInteger(0);
-		IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig("WorkItem", wiType.getId(),
+		IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig(WORKITEM_PROTOTYPE, wiType.getId(),
 				project.getContextId());
 		Collection<IAction> actions = workFlow.getActions();
 		for (IAction action : actions) {
 			Set<IOperation> functions = action.getFunctions();
 			for (IOperation functionOperation : functions) {
-				if (functionOperation.getName().equals("ScriptFunction")) {
+				if (functionOperation.getName().equals(WORKFLOW_FUNCTION_KEY)) {
 					for (Map.Entry<String, String> entry : functionOperation.getParams().entrySet()) {
-						if (entry.getKey().equalsIgnoreCase("script")) {
-							System.out.println("action " + action.getId() + "," + entry.getValue());
+						if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER)) {
 							customizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
 							customizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
 							customizationDetailsResponseData.get(id.get()).put("actionName", action.getName());

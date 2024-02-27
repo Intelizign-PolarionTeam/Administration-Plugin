@@ -4,8 +4,8 @@
    <extension
          point="com.polarion.portal.tomcat.webapps">
       <webapp
-            contextRoot="webapp/custom-user-manager"
-            name="polarion/custom-user-manager">
+            contextRoot="webapp/custom-manager"
+            name="polarion/custom-manager">
       </webapp>
    </extension>
 

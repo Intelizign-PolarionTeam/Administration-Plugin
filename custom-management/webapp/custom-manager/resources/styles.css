@@ -167,4 +167,7 @@ polarion-rpw-table-header-row>th {
     cursor: pointer;
     text-decoration: none; 
 }
-
+.popup-body div{
+	 max-height: 300px;
+     overflow-y: auto;
+}
