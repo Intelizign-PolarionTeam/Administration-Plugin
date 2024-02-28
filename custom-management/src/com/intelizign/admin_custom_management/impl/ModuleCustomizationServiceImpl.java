@@ -1,26 +1,20 @@
 package com.intelizign.admin_custom_management.impl;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
-import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
 import com.polarion.alm.tracker.ITrackerService;
-import com.polarion.alm.tracker.model.IModule;
 import com.polarion.alm.tracker.model.ITrackerProject;
 import com.polarion.alm.tracker.model.ITypeOpt;
-import com.polarion.alm.tracker.model.IWorkItem;
 import com.polarion.alm.tracker.workflow.config.IAction;
-import com.polarion.alm.tracker.workflow.config.IOperation;
 import com.polarion.alm.tracker.workflow.config.IWorkflowConfig;
 import com.polarion.core.util.logging.Logger;
 import com.polarion.platform.persistence.ICustomFieldsService;
@@ -52,40 +46,39 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	//Below Method is base method to get Module Customization Count
 	@Override
 	public List<Map<String, Object>> getModuleCustomizationCountDetails(HttpServletRequest req,
-			HttpServletResponse resp) throws Exception {
-		try {
+	        HttpServletResponse resp) throws Exception {
+	    try {
+	        String projectId = req.getParameter(ModuleCustomizationServiceImpl.PROJECT_ID_KEY);
+	        ITrackerProject projectObject = trackerService.getTrackerProject(projectId);
+	        List<ITypeOpt> moduleEnum = trackerService.getTrackerProject(projectId).getModuleTypeEnum()
+	                .getAvailableOptions(MODULE_TYPE_KEY);
 
-			String projectId = req.getParameter(ModuleCustomizationServiceImpl.PROJECT_ID_KEY);
-			ITrackerProject projectObject = trackerService.getTrackerProject(projectId);
-			List<ITypeOpt> moduleEnum = trackerService.getTrackerProject(projectId).getModuleTypeEnum()
-					.getAvailableOptions(MODULE_TYPE_KEY);
-			List<Map<String, Object>> moduleCustomizationDetailsList = new ArrayList<>();
-			if (!moduleCustomizationDetailsList.isEmpty()) {
-				moduleCustomizationDetailsList.clear();
-			}
-			for (ITypeOpt moduleType : moduleEnum) {
-				getModuleCustomizationCount(projectObject, moduleType);
+	        return moduleEnum.stream()
+	                .map(moduleType -> {
+	                    try {
+	                        getModuleCustomizationCount(projectObject, moduleType);
+	                        Map<String, Object> moduleCustomizationDetailsMap = new LinkedHashMap<>();
+	                        moduleCustomizationDetailsMap.put("moduleType", moduleType.getId());
+	                        moduleCustomizationDetailsMap.put("moduleName", moduleType.getName());
+	                        moduleCustomizationDetailsMap.put("moduleCustomfieldCount", modulecustomfieldCount);
+	                        moduleCustomizationDetailsMap.put("moduleWorkflowFunctionCount", moduleWorkflowFunctionCount);
+	                        moduleCustomizationDetailsMap.put("moduleWorkflowConditionCount", moduleWorkflowConditionCount);
+	                        return moduleCustomizationDetailsMap;
+	                    } catch (Exception e) {
+	                        log.error("Error while processing module customization details: " + e.getMessage());
+	                        return null;
+	                    }
+	                })
+	                .filter(map -> map != null)
+	                .collect(Collectors.toList());
 
-				Map<String, Object> moduleCustomizationDetailsMap = new LinkedHashMap<>();
-				moduleCustomizationDetailsMap.put("moduleType", moduleType.getId());
-				moduleCustomizationDetailsMap.put("moduleName", moduleType.getName());
-				moduleCustomizationDetailsMap.put("moduleCustomfieldCount", modulecustomfieldCount);
-				moduleCustomizationDetailsMap.put("moduleWorkflowFunctionCount", moduleWorkflowFunctionCount);
-				moduleCustomizationDetailsMap.put("moduleWorkflowConditionCount", moduleWorkflowConditionCount);
-
-				moduleCustomizationDetailsList.add(moduleCustomizationDetailsMap);
-
-			}
-			return moduleCustomizationDetailsList;
-
-		} catch (Exception e) {
-			System.out.println("Error Message in customization Details is" + e.getMessage());
-			e.printStackTrace();
-		}
-		return null;
-
+	    } catch (Exception e) {
+	        log.error("Error while getting module customization count details: " + e.getMessage());
+	        e.printStackTrace();
+	        return null;
+	    }
 	}
-	
+
 	//Below Method is base method to get Module Customization Details
 	@Override
 	public Map<Integer, Map<String, Object>> getModuleCustomizationDetails(ITrackerProject trackerPro,
@@ -118,6 +111,7 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 
 	}
 
+
 	@Override
 	public void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception {
 
@@ -136,66 +130,53 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	//Get Module Workflow Condition Count
 	@Override
 	public void getModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception {
-
-		try {
-			moduleWorkflowConditionCount = 0;
-			IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
-					moduleTypeEnum.getId(), pro.getContextId());
-			Collection<IAction> actions = workFlowModule.getActions();
-			getModuleWorkFlowFunctionCount(actions, moduleTypeEnum);
-			for (IAction action : actions) {
-				Set<IOperation> conditions = action.getConditions();
-				for (IOperation conditionOperation : conditions) {
-					if (conditionOperation.getName().equals(WORKFLOW_CONDITION_KEY)) {
-						Map<String, String> conditionData = conditionOperation.getParams();
-						for (Map.Entry<String, String> entry : conditionData.entrySet()) {
-							if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY)) {
-								moduleWorkflowConditionCount++;
-							}
-						}
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	    try {
+	        moduleWorkflowConditionCount = 0;
+	        IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
+	                moduleTypeEnum.getId(), pro.getContextId());
+	        Collection<IAction> actions = workFlowModule.getActions();
+	        
+	        long conditionCount = actions.stream()
+	            .flatMap(action -> action.getConditions().stream())
+	            .filter(conditionOperation -> WORKFLOW_CONDITION_KEY.equals(conditionOperation.getName()))
+	            .flatMap(conditionOperation -> conditionOperation.getParams().entrySet().stream())
+	            .filter(entry -> entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY))
+	            .count();
+	        
+	        moduleWorkflowConditionCount = (int) conditionCount;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
+
 
 	//Get Module Workflow Function Count
 	@Override
 	public void getModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt wiTypeEnum) throws Exception {
-
-		try {
-			moduleWorkflowFunctionCount = 0;
-			for (IAction action : actions) {
-
-				Set<IOperation> functions = action.getFunctions();
-				for (IOperation functionOperation : functions) {
-					if (functionOperation.getName().equals(WORKFLOW_FUNCTION_KEY)) {
-						moduleWorkflowFunctionCount++;
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	    try {
+	        moduleWorkflowFunctionCount = (int) actions.stream()
+	            .flatMap(action -> action.getFunctions().stream())
+	            .filter(functionOperation -> functionOperation.getName().equals(WORKFLOW_FUNCTION_KEY))
+	            .count();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 	}
+
 
 	//Get Module Custom Field Count
 	@Override
 	public int getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt wiTypeEnum) throws Exception {
-		Collection<ICustomField> moduleCustomFieldList = null;
-		try {
-			ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
-			moduleCustomFieldList = customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY, pro.getContextId(),
-					wiTypeEnum.getId());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return moduleCustomFieldList.size();
-
+	    try {
+	        ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
+	        return (int) customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY, pro.getContextId(), wiTypeEnum.getId())
+	            .stream()
+	            .count();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        // Handle the exception as needed
+	        return 0; // Return a default value in case of an exception
+	    }
 	}
 
 	/*Get Module WorkFlow Function Details like below Attributes
@@ -203,90 +184,78 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	 */
 	@Override
 	public void getModuleWorkFlowFunctionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception {
-		IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
-				moduleType.getId(), project.getContextId());
-		AtomicInteger id = new AtomicInteger(0);
-		Collection<IAction> actions = workFlowModule.getActions();
-		for (IAction action : actions) {
-			Set<IOperation> functions = action.getFunctions();
-			for (IOperation functionOperation : functions) {
-				if (functionOperation.getName().equals(WORKFLOW_FUNCTION_KEY)) {
-					for (Map.Entry<String, String> entry : functionOperation.getParams().entrySet()) {
-						if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY)) {
+	    IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
+	            moduleType.getId(), project.getContextId());
 
-							moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(),
-									k -> new LinkedHashMap<>());
-							moduleCustomizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
-							moduleCustomizationDetailsResponseData.get(id.get()).put("actionName", action.getName());
-							moduleCustomizationDetailsResponseData.get(id.get()).put("attachedJsFile",
-									entry.getValue());
-							id.getAndIncrement();
-						}
-					}
-				}
-			}
-		}
+	    AtomicInteger id = new AtomicInteger(0);
 
+	    workFlowModule.getActions().forEach(action -> {
+	        action.getFunctions().stream()
+	            .filter(functionOperation -> functionOperation.getName().equals(WORKFLOW_FUNCTION_KEY))
+	            .flatMap(functionOperation -> functionOperation.getParams().entrySet().stream())
+	            .filter(entry -> entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY))
+	            .forEach(entry -> {
+	                moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+	                moduleCustomizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
+	                moduleCustomizationDetailsResponseData.get(id.get()).put("actionName", action.getName());
+	                moduleCustomizationDetailsResponseData.get(id.get()).put("attachedJsFile", entry.getValue());
+	                id.getAndIncrement();
+	            });
+	    });
 	}
+
 	
 	/*Get Module WorkFlow Condition Details like below Attributes 
 	 *actionId, actionName, scriptFileName
 	 */
 	@Override
 	public void getModuleWorkFlowConditionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception {
-		IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
-				moduleType.getId(), project.getContextId());
-		AtomicInteger id = new AtomicInteger(0);
-		Collection<IAction> actions = workFlowModule.getActions();
-		for (IAction action : actions) {
-			Set<IOperation> conditions = action.getConditions();
-			for (IOperation conditionsOperation : conditions) {
-				if (conditionsOperation.getName().equals(WORKFLOW_CONDITION_KEY)) {
+	    IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
+	            moduleType.getId(), project.getContextId());
+	    AtomicInteger id = new AtomicInteger(0);
 
-					for (Map.Entry<String, String> entry : conditionsOperation.getParams().entrySet()) {
-						if (entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY)) {
-
-							moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(),
-									k -> new LinkedHashMap<>());
-							moduleCustomizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
-							moduleCustomizationDetailsResponseData.get(id.get()).put("actionName", action.getId());
-							moduleCustomizationDetailsResponseData.get(id.get()).put("attachedJsFile",
-									entry.getValue());
-							id.getAndIncrement();
-						}
-					}
-				}
-			}
-		}
-
+	    workFlowModule.getActions().forEach(action -> {
+	        action.getConditions().forEach(conditionsOperation -> {
+	            if (conditionsOperation.getName().equals(WORKFLOW_CONDITION_KEY)) {
+	                conditionsOperation.getParams().entrySet().stream()
+	                    .filter(entry -> entry.getKey().equalsIgnoreCase(SCRIPT_PARAMETER_KEY))
+	                    .forEach(entry -> {
+	                        moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+	                        moduleCustomizationDetailsResponseData.get(id.get()).put("actionId", action.getId());
+	                        moduleCustomizationDetailsResponseData.get(id.get()).put("actionName", action.getName());
+	                        moduleCustomizationDetailsResponseData.get(id.get()).put("attachedJsFile", entry.getValue());
+	                        id.getAndIncrement();
+	                    });
+	            }
+	        });
+	    });
 	}
+
 
 	/*Get Module WorkFlow Custom Field Details in below Attributes 
 	 *customId, customName
 	 */
-	@Override
 	public void getModuleCustomFieldDetails(ITypeOpt moduleType, ITrackerProject projectId) throws Exception {
-		AtomicInteger id = new AtomicInteger(0);
-		ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
+	    AtomicInteger id = new AtomicInteger(0);
+	    ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 
-		Collection<ICustomField> moduleCustomFieldList = customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY,
-				projectId.getContextId(), moduleType.getId());
+	    Collection<ICustomField> moduleCustomFieldList = customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY,
+	            projectId.getContextId(), moduleType.getId());
 
-		for (ICustomField cust : moduleCustomFieldList) {
-			IType getType = cust.getType();
-
-			moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
-			moduleCustomizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
-			moduleCustomizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
-			if (getType instanceof IPrimitiveType) {
-				IPrimitiveType modulePrimitiveType = (IPrimitiveType) getType;
-				moduleCustomizationDetailsResponseData.get(id.get()).put("customType",
-						modulePrimitiveType.getTypeName());
-			}
-			id.getAndIncrement();
-
-		}
-
+	    moduleCustomFieldList.stream().forEach(cust -> {
+	        IType getType = cust.getType();
+	        moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
+	        moduleCustomizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
+	        moduleCustomizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
+	        if (getType instanceof IPrimitiveType) {
+	            IPrimitiveType modulePrimitiveType = (IPrimitiveType) getType;
+	            moduleCustomizationDetailsResponseData.get(id.get()).put("customType", modulePrimitiveType.getTypeName());
+	        }
+	        id.getAndIncrement();
+	    });
 	}
 
 }
+
+
+

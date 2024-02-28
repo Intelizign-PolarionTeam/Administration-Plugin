@@ -27,7 +27,7 @@ $(document).ready(function() {
 });
 
 function projectInfo() {
-	//$('#accordionExample .accordion-collapse').collapse('hide');
+	$('#accordionExample .accordion-collapse').collapse('show');
 	const projectId = $("#projectDropDown").val();
 	if (!projectId) {
         alert("Please select a project");
@@ -61,6 +61,8 @@ function projectInfo() {
 			pluginDetailCustomizationTable(pluginDetailsObj);
 			prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj);
 			getVersionDetailsCustomizationTable(licenseDetailsObj);
+			
+			console.log("Plugin Details Obj is" ,pluginDetailsObj );
 		},
 		error: function(error) {
 			console.error("Error occurred:", error);
@@ -249,15 +251,16 @@ function pluginDetailCustomizationTable(pluginDetailsObj) {
 
     $.each(pluginDetailsObj, function(index, pluginObj) {
         
-        if (pluginObj.hasOwnProperty('pluginDeatils') && pluginObj.hasOwnProperty('pluginPath')) {
+        if (pluginObj.hasOwnProperty('pluginDetails') && pluginObj.hasOwnProperty('pluginPath')) {
             
 
-            if (!uniqueFolderNames[pluginObj.pluginDeatils]) {
+            if (!uniqueFolderNames[pluginObj.pluginDetails]) {
                 var row = $('<tr>').addClass('table-content-row');
               
 
-                ['pluginDeatils', 'pluginPath'].forEach(function(pluginEvent) {
+                ['pluginDetails', 'pluginPath'].forEach(function(pluginEvent) {
                     var eventValue = pluginObj[pluginEvent];
+                    console.log("Event Value is", eventValue);
                     var countCell = $('<td>').css('text-align', 'center');
                     if (eventValue > 0) {
                         var hyperlink = $('<a>').addClass('data-span clickable-cell').text(eventValue);
