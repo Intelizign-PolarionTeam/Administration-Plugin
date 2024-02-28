@@ -43,7 +43,12 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 
 	}
 
-	//Below Method is base method to get Module Customization Count
+	/**
+	 * Retrieves  count Details related  to Module Customization
+	 * 
+	 * @param req  The HttpServletRequest object containing request parameters.
+	 * @param resp The HttpServletResponse object used to send the response.
+	 */
 	@Override
 	public List<Map<String, Object>> getModuleCustomizationCountDetails(HttpServletRequest req,
 	        HttpServletResponse resp) throws Exception {
@@ -56,7 +61,7 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	        return moduleEnum.stream()
 	                .map(moduleType -> {
 	                    try {
-	                        getModuleCustomizationCount(projectObject, moduleType);
+	                    	storeAllModuleCustomizationCount(projectObject, moduleType);
 	                        Map<String, Object> moduleCustomizationDetailsMap = new LinkedHashMap<>();
 	                        moduleCustomizationDetailsMap.put("moduleType", moduleType.getId());
 	                        moduleCustomizationDetailsMap.put("moduleName", moduleType.getName());
@@ -79,7 +84,13 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	    }
 	}
 
-	//Below Method is base method to get Module Customization Details
+	/**
+	 * Retrieves  module Details related  to all Module Customization
+	 * 
+	 * @param trackerPro  - The Tracker Project Object.
+	 * @param moduleTypeEnum - The Module Type Enum.
+	 * @param heading
+	 */ 
 	@Override
 	public Map<Integer, Map<String, Object>> getModuleCustomizationDetails(ITrackerProject trackerPro,
 			ITypeOpt moduleTypeEnum, String heading) throws Exception {
@@ -89,21 +100,29 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 
 	}
 
-	//In UI User click the count (hyperlink) below method handle that action
+	/**
+	 * Redirects to the appropriate method based on the heading provided. From
+	 * Frontend when user trigger the count respective heading passed
+	 *
+	 * @param heading      The heading indicating the type of customization.
+	 * @param moduleTypeEnum The module enum Object.
+	 * @param trackerPro   The tracker project.
+	 * @throws Exception If an error occurs during the customization processing.
+	 */
 	public void redirectModuleCustomization(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading)
 			throws Exception {
 
 		switch (heading) {
 		case "moduleCustomfieldCount":
 
-			getModuleCustomFieldDetails(moduleTypeEnum, trackerPro);
+			addModuleCustomFieldDetailsInMapObject(moduleTypeEnum, trackerPro);
 			break;
 		case "moduleWorkflowFunctionCount":
-			getModuleWorkFlowFunctionDetails(moduleTypeEnum, trackerPro);
+			addModuleWorkFlowFunctionDetailsInMapObject(moduleTypeEnum, trackerPro);
 			break;
 
 		case "moduleWorkflowConditionCount":
-			getModuleWorkFlowConditionDetails(moduleTypeEnum, trackerPro);
+			addModuleWorkFlowConditionDetailsInMapObject(moduleTypeEnum, trackerPro);
 			break;
 		default:
 			break;
@@ -111,14 +130,19 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 
 	}
 
-
+	/**
+	 * Retrieves all customization count related to module
+	 * 
+	 * @param pro        -The tracker project object
+	 * @param moduleTypeEnum - The module enum object
+	 */
 	@Override
-	public void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception {
+	public void storeAllModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception {
 
 		try {
 			modulecustomfieldCount = 0;
 			modulecustomfieldCount = getModuleCustomFieldCount(trackerPro, moduleTypeEnum);
-			getModuleWorkFlowConditionCount(trackerPro, moduleTypeEnum);
+			storeModuleWorkFlowConditionCount(trackerPro, moduleTypeEnum);
 
 		} catch (UnresolvableObjectException e) {
 			log.error("Skipping entry due to UnresolvableObjectException: " + e.getMessage());
@@ -127,9 +151,15 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 		}
 	}
 
-	//Get Module Workflow Condition Count
+	/**
+	 * Retrieves workflow condition count with respective module type stored in
+	 * moduleWorkflowConditionCount variable
+	 * 
+	 * @param pro        -The tracker project object
+	 * @param moduleTypeEnum - The module enum object
+	 */
 	@Override
-	public void getModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception {
+	public void storeModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception {
 	    try {
 	        moduleWorkflowConditionCount = 0;
 	        IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
@@ -150,9 +180,15 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	}
 
 
-	//Get Module Workflow Function Count
+	/**
+	 * Retrieves workflow function count with respective module type stored in
+	 * moduleWorkflowFunctionCount variable
+	 * 
+	 * @param actions    -collection of IAction object related to workitem workflow
+	 * @param moduleTypeEnum - The module enum object
+	 */
 	@Override
-	public void getModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt wiTypeEnum) throws Exception {
+	public void storeModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt moduleTypeEnum) throws Exception {
 	    try {
 	        moduleWorkflowFunctionCount = (int) actions.stream()
 	            .flatMap(action -> action.getFunctions().stream())
@@ -164,26 +200,36 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	}
 
 
-	//Get Module Custom Field Count
+
+	/**
+	 * Retrieves customField count with respective module type stored in
+	 * moduleWorkflowConditionCount variable
+	 * 
+	 * @param pro        -The tracker project object
+	 * @param moduleTypeEnum - The module type enum object
+	 */
 	@Override
-	public int getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt wiTypeEnum) throws Exception {
+	public int getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception {
 	    try {
 	        ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
-	        return (int) customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY, pro.getContextId(), wiTypeEnum.getId())
+	        return (int) customFieldService.getCustomFields(MODULE_PROTOTYPE_KEY, pro.getContextId(), moduleTypeEnum.getId())
 	            .stream()
 	            .count();
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	        // Handle the exception as needed
-	        return 0; // Return a default value in case of an exception
+	        return 0; 
 	    }
 	}
 
-	/*Get Module WorkFlow Function Details like below Attributes
-	 *actionId, actionName, scriptFileName
+	/**
+	 * Retrieves and maps module workflow Function details associated with a module
+	 *  type and project. Attributes actionId, actionName, attachedJsFile
+	 * 
+	 * @param moduleType  -The module type
+	 * @param project -The tracker project object
 	 */
 	@Override
-	public void getModuleWorkFlowFunctionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception {
+	public void addModuleWorkFlowFunctionDetailsInMapObject(ITypeOpt moduleType, ITrackerProject project) throws Exception {
 	    IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
 	            moduleType.getId(), project.getContextId());
 
@@ -205,11 +251,15 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	}
 
 	
-	/*Get Module WorkFlow Condition Details like below Attributes 
-	 *actionId, actionName, scriptFileName
+	/**
+	 * Retrieves and maps module workflow condition details associated with a module
+	 * type and project. Attributes actionId, actionName, attachedJsFile
+	 * 
+	 * @param moduleType  -The module type
+	 * @param project -The tracker project object
 	 */
 	@Override
-	public void getModuleWorkFlowConditionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception {
+	public void addModuleWorkFlowConditionDetailsInMapObject(ITypeOpt moduleType, ITrackerProject project) throws Exception {
 	    IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
 	            moduleType.getId(), project.getContextId());
 	    AtomicInteger id = new AtomicInteger(0);
@@ -232,10 +282,14 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	}
 
 
-	/*Get Module WorkFlow Custom Field Details in below Attributes 
-	 *customId, customName
+	/**
+	 * Retrieves and maps module customField details associated with a module
+	 * type and project. Attributes customId, customName, customType
+	 * 
+	 * @param moduleType  -The module type
+	 * @param project -The tracker project object
 	 */
-	public void getModuleCustomFieldDetails(ITypeOpt moduleType, ITrackerProject projectId) throws Exception {
+	public void addModuleCustomFieldDetailsInMapObject(ITypeOpt moduleType, ITrackerProject projectId) throws Exception {
 	    AtomicInteger id = new AtomicInteger(0);
 	    ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 
@@ -247,6 +301,7 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	        moduleCustomizationDetailsResponseData.computeIfAbsent(id.get(), k -> new LinkedHashMap<>());
 	        moduleCustomizationDetailsResponseData.get(id.get()).put("customId", cust.getId());
 	        moduleCustomizationDetailsResponseData.get(id.get()).put("customName", cust.getName());
+	       
 	        if (getType instanceof IPrimitiveType) {
 	            IPrimitiveType modulePrimitiveType = (IPrimitiveType) getType;
 	            moduleCustomizationDetailsResponseData.get(id.get()).put("customType", modulePrimitiveType.getTypeName());

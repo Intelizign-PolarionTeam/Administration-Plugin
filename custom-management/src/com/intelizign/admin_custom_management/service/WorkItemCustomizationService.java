@@ -7,9 +7,9 @@ import com.polarion.platform.persistence.UnresolvableObjectException;
 
 public interface WorkItemCustomizationService {
 
-	void getProjectList(HttpServletRequest req, HttpServletResponse resp) throws UnresolvableObjectException;
+	void retrieveAndSendProjectListAsJSON(HttpServletRequest req, HttpServletResponse resp) throws UnresolvableObjectException;
 
-	void getCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception;
+	void fetchAndOrganizeCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception;
 
-	void getCustomizationDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception;
+	void FetchAndSendCustomizationDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception;
 }

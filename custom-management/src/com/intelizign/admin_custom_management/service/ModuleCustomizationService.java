@@ -15,20 +15,20 @@ public interface ModuleCustomizationService {
 	
 	List<Map<String, Object>> getModuleCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp)throws Exception;
 	
-	void getModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception;
+	void storeAllModuleCustomizationCount(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum) throws Exception;
 	
 	Map<Integer,Map<String, Object>>  getModuleCustomizationDetails(ITrackerProject trackerPro, ITypeOpt moduleTypeEnum, String heading) throws Exception;
 
-	void getModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
+	void  storeModuleWorkFlowConditionCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
 
-	void getModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt moduleTypeEnum) throws Exception;
+	void  storeModuleWorkFlowFunctionCount(Collection<IAction> actions, ITypeOpt moduleTypeEnum) throws Exception;
 
-	int getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
+	int   getModuleCustomFieldCount(ITrackerProject pro, ITypeOpt moduleTypeEnum) throws Exception;
 
-	void getModuleWorkFlowFunctionDetails(ITypeOpt moduleType, ITrackerProject project) throws Exception;
+	void  addModuleWorkFlowFunctionDetailsInMapObject(ITypeOpt moduleType, ITrackerProject project) throws Exception;
 	
-	void  getModuleWorkFlowConditionDetails(ITypeOpt moduleType, ITrackerProject projectId) throws Exception;
+	void  addModuleWorkFlowConditionDetailsInMapObject(ITypeOpt moduleType, ITrackerProject projectId) throws Exception;
 	
-	void  getModuleCustomFieldDetails(ITypeOpt moduleType, ITrackerProject projectid) throws Exception;
+	void  addModuleCustomFieldDetailsInMapObject(ITypeOpt moduleType, ITrackerProject projectid) throws Exception;
 
 }

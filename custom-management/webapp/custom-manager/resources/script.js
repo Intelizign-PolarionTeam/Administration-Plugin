@@ -51,6 +51,8 @@ function projectInfo() {
 			const prePostSaveScriptObj = data.prePostSaveScriptDetails;
 			const licenseDetailsObj = data.licenseDetails;
 			
+			console.log("wiCustomizationObj",wiCustomizationObj);
+			console.log("moduleCustomizationObj",moduleCustomizationObj);
 		
 			$('#userTableBody').empty();
 			$('#userTableBodyDocument').empty();
@@ -88,7 +90,8 @@ function workItemCustomizationTable(wiCustomizationObj) {
 					var hyperlink = $('<a>').addClass('data-span clickable-cell')
 						.text(count)
 						.data('heading', countType)
-						.data('type',  wiCustom.wiType);
+						.data('type',  wiCustom.wiType)
+						.data('name', wiCustom.wiName);
 						
 					countCell.append(hyperlink);
 				} else {
@@ -151,7 +154,8 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 					var hyperlink = $('<a>').addClass('data-span clickable-cell')
 						.text(count)
 						.data('heading', countType)
-						.data('type', moduleCustom.moduleType);
+						.data('type', moduleCustom.moduleType)
+						.data('name', moduleCustom.moduleName);
 
 
 					countCell.append(hyperlink);
@@ -238,7 +242,6 @@ function prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj)
                 });
 
                 $('#prePostReportTableBody').append(row);
-                //uniqueFolderNames[pluginObj.pluginDeatils] = true;
             }
         
     });
@@ -272,7 +275,7 @@ function pluginDetailCustomizationTable(pluginDetailsObj) {
                 });
 
                 $('#pluginReportTableBody').append(row);
-                //uniqueFolderNames[pluginObj.pluginDeatils] = true;
+ 
             }
         }
     });
@@ -349,6 +352,7 @@ $(document).on('click', '.clickable-cell', function() {
     const projectId = $("#projectDropDown").val();
     var heading = $(this).data('heading');
     var type = $(this).data('type');
+    var name = $(this).data('name');
    
 
     $.ajax({
@@ -358,15 +362,15 @@ $(document).on('click', '.clickable-cell', function() {
         success: function(response) {
            
             const customizationDetailsResponseData = response.customizationDetailsResponseData;
-           
+           	console.log("Customization Details Response Data", customizationDetailsResponseData);
             if(heading === "moduleCustomfieldCount"  || heading === "wiCustomFieldCount" ){
-            showCustomFieldModelPopup(type , customizationDetailsResponseData);
+            showCustomFieldModelPopup(name , customizationDetailsResponseData);
             }else if(heading === "moduleWorkflowConditionCount"  || heading === "wiWorkflowScriptConditionCount"){
-			showWorkFlowConditionPopup(type , customizationDetailsResponseData);
+			showWorkFlowConditionPopup(name , customizationDetailsResponseData);
 			}else if(heading === "moduleWorkflowFunctionCount" || heading === "wiWorkflowScriptFunctionCount"){
-			showWorkFlowFunctionPopup(type , customizationDetailsResponseData);	
+			showWorkFlowFunctionPopup(name , customizationDetailsResponseData);	
 			}else{
-				showCustomEnumerationModelPopup(type , customizationDetailsResponseData);
+				showCustomEnumerationModelPopup(name , customizationDetailsResponseData);
 			}
         },
         error: function(error) {
@@ -380,11 +384,11 @@ $(document).on('click', '.clickable-cell', function() {
 
 
 
-function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
+function showCustomFieldModelPopup(name, customizationDetailsResponseData) {
 	
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
-    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(wiType);
+    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
     const popupBody = $('<div>').addClass('popup-body');
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
@@ -402,7 +406,6 @@ function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
     for (const key in customizationDetailsResponseData) {
         if (customizationDetailsResponseData.hasOwnProperty(key)) {
             const customDetail = customizationDetailsResponseData[key];
-            console.log("customDetail ",customDetail)
             const tableContentRow = $('<tr>').addClass('table-content-row');
             tableContentRow.append($('<td>').text(customDetail.customId));
             tableContentRow.append($('<td>').text(customDetail.customName));
@@ -427,11 +430,11 @@ function showCustomFieldModelPopup(wiType, customizationDetailsResponseData) {
     modal.show();
 }
 
-function showWorkFlowConditionPopup(wiType, customizationDetailsResponseData) {
+function showWorkFlowConditionPopup(name, customizationDetailsResponseData) {
 	
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
-    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(wiType);
+    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
     const popupBody = $('<div>').addClass('popup-body');
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
@@ -470,11 +473,11 @@ function showWorkFlowConditionPopup(wiType, customizationDetailsResponseData) {
     modal.show();
 }
 
-function showWorkFlowFunctionPopup(wiType, customizationDetailsResponseData) {
+function showWorkFlowFunctionPopup(name, customizationDetailsResponseData) {
 	
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
-    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(wiType);
+    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
     const popupBody = $('<div>').addClass('popup-body');
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
@@ -514,11 +517,11 @@ function showWorkFlowFunctionPopup(wiType, customizationDetailsResponseData) {
     modal.show();
 }
 
-function showCustomEnumerationModelPopup(wiType, customizationDetailsResponseData) {
+function showCustomEnumerationModelPopup(name, customizationDetailsResponseData) {
 	
     const modal = $('<div>').addClass('modal');
     const modalContent = $('<div>').addClass('modal-content');
-    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(wiType);
+    const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
     const popupBody = $('<div>').addClass('popup-body');
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');

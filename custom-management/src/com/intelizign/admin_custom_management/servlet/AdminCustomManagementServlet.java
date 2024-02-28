@@ -41,26 +41,24 @@ public class AdminCustomManagementServlet extends HttpServlet {
 				(trackerService,transactionService,repositoryService,moduleCustomizationService);
 		
 	}
-
-	/**
-	 * 
-	 */
+	
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String action = req.getParameter("action");
 		try {
-			if (action != null) {
+			if (action != null) {  
 				switch (action) {
 				case "getProjectList":
-					workItemCustomizationService.getProjectList(req, resp);
+					workItemCustomizationService.retrieveAndSendProjectListAsJSON(req, resp);
 					break;
 				case "getCustomizationCountDetails":
-					workItemCustomizationService.getCustomizationCountDetails(req, resp);
+					workItemCustomizationService.fetchAndOrganizeCustomizationCountDetails(req, resp);
 					
 					break;
 				case "getCustomizationDetails":
-					  workItemCustomizationService.getCustomizationDetails(req, resp);
+					  workItemCustomizationService.FetchAndSendCustomizationDetails(req, resp);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid action specified");
