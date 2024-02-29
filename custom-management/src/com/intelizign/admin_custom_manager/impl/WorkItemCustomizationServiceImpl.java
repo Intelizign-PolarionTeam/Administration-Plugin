@@ -131,7 +131,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * @throws Exception If an error occurs during the process.
 	 */
 	@Override
-	public void fetchAndOrganizeCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+	public void fetchAndOrganizeCustomizationCountDetails(HttpServletRequest req, HttpServletResponse resp) 
+			throws Exception {
 		try {
 			String projectId = req.getParameter("projectId");
 			ITrackerProject projectObject = trackerService.getTrackerProject(projectId);
@@ -185,7 +186,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * Retrieves License Details and add to the licenseDetailsMap Object 
 	 * Attributes - pluginDetails, pluginPath
 	 */
-	private void addLicenseDetailsInMapObject(HttpServletRequest req, HttpServletResponse resp) {
+	private void addLicenseDetailsInMapObject(HttpServletRequest req, HttpServletResponse resp)
+	throws Exception{
 		try {
 
 			String folderPath = System.getProperty("com.polarion.home") + "/../polarion/license/";
@@ -238,7 +240,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * Retrieves plugin Details and add to the pluginDetailsMap Object 
 	 * Attributes - pluginDetails, pluginPath
 	 */
-	private void addPluginDetailsInMapObject(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	private void addPluginDetailsInMapObject(HttpServletRequest req, HttpServletResponse resp) 
+			throws Exception {
 		String path = System.getProperty("com.polarion.home") + "/extensions/";
 		File directory = new File(path);
 		AtomicInteger id = new AtomicInteger(0);
@@ -256,7 +259,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	}
 	
 	//Extract FunctionName in PrePost hook script
-	private String extractFunctionNames(String content) {
+	private String extractFunctionNames(String content) 
+			throws Exception {
 		Pattern pattern = Pattern.compile("function\\s+([\\w\\d_]+)\\s*\\(");
 		Matcher matcher = pattern.matcher(content);
 		List<String> functionNames = new ArrayList<>();
@@ -268,7 +272,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	}
 	
 	//Read prepost hook file
-	private String readFileContent(File file) {
+	private String readFileContent(File file)
+	throws Exception{
 		try (Stream<String> lines = Files.lines(file.toPath())) {
 			return lines.collect(Collectors.joining("\n"));
 		} catch (IOException ex) {
@@ -281,7 +286,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * Retrieves prepost save Details and add to the prePostSaveScriptMap Object 
 	 * Attributes - Name, Extension
 	 */
-	private void addPrePostSaveScriptDetailsInMapObject(HttpServletRequest req, HttpServletResponse resp) {
+	private void addPrePostSaveScriptDetailsInMapObject(HttpServletRequest req, HttpServletResponse resp)
+	throws Exception{
 		String folderPath = System.getProperty("com.polarion.home") + "/../scripts/" + "/workitemsave/";
 		File folder = new File(folderPath);
 		try {
@@ -603,7 +609,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 				reader.close();
 			if (inputStrm != null)
 				inputStrm.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			System.out.println("Error closing resources: " + e.getMessage());
 		}
 	}
@@ -618,7 +624,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * @throws IOException if an error occurs during customization
 	 */
 	private void processEnumeration(BufferedReader readEnumerationXml, List<String> wiTypeList, ITypeOpt wiType)
-			throws IOException {
+			throws Exception {
 		AtomicInteger id = new AtomicInteger(0);
 		Pattern pattern = Pattern.compile("<a href=\"(.*?)\">(.*?)</a>");
 		readEnumerationXml.lines().flatMap(line -> {
@@ -649,7 +655,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * @param wiType  -The workItem type
 	 * @param project The tracker project object
 	 */
-	private void addWorkItemWorkFlowConditionDetailsInMapObject(ITypeOpt wiType, ITrackerProject project) {
+	private void addWorkItemWorkFlowConditionDetailsInMapObject(ITypeOpt wiType, ITrackerProject project) 
+	throws Exception{
 		AtomicInteger id = new AtomicInteger(0);
 		try {
 			IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig(WORKITEM_PROTOTYPE,
@@ -681,7 +688,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * @param wiType    -The workItem type
 	 * @param projectId -The tracker project object
 	 */
-	private void addWorkItemCustomFieldDetailsInMapObject(ITypeOpt wiType, ITrackerProject projectId) {
+	private void addWorkItemCustomFieldDetailsInMapObject(ITypeOpt wiType, ITrackerProject projectId)
+	throws Exception{
 		AtomicInteger id = new AtomicInteger(0);
 		ICustomFieldsService customFieldService = trackerService.getDataService().getCustomFieldsService();
 		Collection<ICustomField> customFieldList = customFieldService.getCustomFields(WORKITEM_PROTOTYPE,
@@ -705,7 +713,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 * @param wiType  -The workItem type
 	 * @param project -The tracker project object
 	 */
-	private void addWorkItemWorkFlowFunctionDetailsInMapObject(ITypeOpt wiType, ITrackerProject project) {
+	private void addWorkItemWorkFlowFunctionDetailsInMapObject(ITypeOpt wiType, ITrackerProject project) 
+			throws Exception {
 		AtomicInteger id = new AtomicInteger(0);
 		IWorkflowConfig workFlow = trackerService.getWorkflowManager().getWorkflowConfig(WORKITEM_PROTOTYPE,
 				wiType.getId(), project.getContextId());
