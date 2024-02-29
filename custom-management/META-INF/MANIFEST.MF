@@ -1,12 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Custom-management
-Bundle-SymbolicName: custom-management;singleton:=true
+Bundle-Name: Custom-Manager
+Bundle-SymbolicName: customization-manager;singleton:=true
+Bundle-Vendor: Intelizign Engineering Services Pvt Ltd
 Bundle-Version: 1.0.0
-Bundle-ClassPath: CustomUserManagement.jar
-Export-Package: com.intelizign.admin_custom_management.impl,
- com.intelizign.admin_custom_management.service,
- com.intelizign.admin_custom_management.servlet
+Bundle-ClassPath: custom-manager.jar
+Export-Package: com.intelizign.admin_custom_manager.impl,
+ com.intelizign.admin_custom_manager.service,
+ com.intelizign.admin_custom_manager.servlet
 Require-Bundle: com.polarion.portal.tomcat;bundle-version="9.0.65",
  com.polarion.alm.ui;bundle-version="3.23.4",
  com.polarion.alm.tracker;bundle-version="3.23.4",

@@ -1,4 +1,4 @@
-package com.intelizign.admin_custom_management.impl;
+package com.intelizign.admin_custom_manager.impl;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
+import com.intelizign.admin_custom_manager.service.ModuleCustomizationService;
 import com.polarion.alm.tracker.ITrackerService;
 import com.polarion.alm.tracker.model.ITrackerProject;
 import com.polarion.alm.tracker.model.ITypeOpt;

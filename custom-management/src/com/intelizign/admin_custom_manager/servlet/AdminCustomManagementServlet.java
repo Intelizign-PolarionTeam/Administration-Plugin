@@ -1,9 +1,9 @@
-package com.intelizign.admin_custom_management.servlet;
+package com.intelizign.admin_custom_manager.servlet;
 
-import com.intelizign.admin_custom_management.impl.ModuleCustomizationServiceImpl;
-import com.intelizign.admin_custom_management.impl.WorkItemCustomizationServiceImpl;
-import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
-import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
+import com.intelizign.admin_custom_manager.impl.ModuleCustomizationServiceImpl;
+import com.intelizign.admin_custom_manager.impl.WorkItemCustomizationServiceImpl;
+import com.intelizign.admin_custom_manager.service.ModuleCustomizationService;
+import com.intelizign.admin_custom_manager.service.WorkItemCustomizationService;
 import com.polarion.platform.service.repository.IRepositoryService;
 import com.polarion.alm.tracker.ITrackerService;
 import com.polarion.platform.ITransactionService;

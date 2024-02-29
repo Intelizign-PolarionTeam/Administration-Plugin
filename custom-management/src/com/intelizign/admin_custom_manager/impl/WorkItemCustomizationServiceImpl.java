@@ -1,4 +1,4 @@
-package com.intelizign.admin_custom_management.impl;
+package com.intelizign.admin_custom_manager.impl;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,8 +30,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
-import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
+import com.intelizign.admin_custom_manager.service.ModuleCustomizationService;
+import com.intelizign.admin_custom_manager.service.WorkItemCustomizationService;
 import com.polarion.alm.projects.model.IFolder;
 import com.polarion.alm.projects.model.IProject;
 import com.polarion.alm.tracker.ITrackerService;
@@ -334,6 +334,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 				liveReportDetailsResponseMap.get(id.get()).put("createdDate", CreatedDate.toString());
 				liveReportDetailsResponseMap.get(id.get()).put("updatedDate", UpdatedDate.toString());
 				liveReportDetailsResponseMap.get(id.get()).put("reportName", report.getTitle());
+				liveReportDetailsResponseMap.get(id.get()).put("reportId", report.getId());
 				id.getAndIncrement();
 			});
 		});

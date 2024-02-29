@@ -18,7 +18,7 @@
 
     <servlet>
         <servlet-name>CustomManager</servlet-name>
-        <servlet-class>com.intelizign.admin_custom_management.servlet.AdminCustomManagementServlet</servlet-class>
+        <servlet-class>com.intelizign.admin_custom_manager.servlet.AdminCustomManagementServlet</servlet-class>
 
         <init-param>
             <param-name>debug</param-name>

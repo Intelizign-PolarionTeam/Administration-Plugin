@@ -2,259 +2,239 @@
 <html lang="en">
 
 <head>
-<meta charset="ISO-8859-1" />
-<title></title>
-<link rel="stylesheet" href="./resources/styles.css">
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-	rel="stylesheet"
-	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-	crossorigin="anonymous">
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-	integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-	crossorigin="anonymous"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
-	integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
-	crossorigin="anonymous"></script>
-<script
-	src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
-	integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
-	crossorigin="anonymous"></script>
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
-<script src="./resources/script.js"></script>
- <style>
- 
-    </style>
+	<meta charset="ISO-8859-1" />
+	<title></title>
+	<link rel="stylesheet" href="./resources/styles.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+		integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+		crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+		integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.4/xlsx.full.min.js"></script>
+	<script src="./resources/script.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body>
-
-	<table>
-		<tr>
-			<td>
-				<div class="project-container"
-					style="display: flex; align-items: center;">
-					<div style="margin-right: 10px;">
-						<label class="title" style="color: #005F87;">Projects</label>
-					</div>
-					<div>
-						<select class="form-control" id="projectDropDown"
-							name="projectDiv">
-							<option>Select the Project</option>
-						</select>
-					</div>
-				</div>
-			</td>
-
-
-			<td>
-				<div style="margin-left: 10px;">
-					<input type="button" class="button-class" value="Show"
+	<div class="heading-main-div">
+		<table class="heading-table">
+			<tr>
+				<td class="footer-heading-td" style="width: 250px;">
+					<label style="font-size: 14px;font-weight: bold; color: #004d73;">Projects</label>
+					<select class="form-control" id="projectDropDown" name="projectDiv">
+						<option>Select</option>
+					</select>
+					<input id="showContentButton" type="button" class="btn-popup-close" value="Show Details"
 						onclick="projectInfo()">
-			</td>
-			</div>
-			<td>
-				<div class="export-div" style="display: none"
-					style="margin-left: 200px;">
-					<button type="button" id="myButton" class="button-class"
-						onclick="exportExcel()">Export Configuration to Excel</button>
-				</div>
-			</td>
-			<td class="version-div" style="display: none;">
-				<div style="margin-left: 10px;">
-					<table>
-						<thead>
-							
-						</thead>
-						<tbody id="versionTableBody">
-						</tbody>
-					</table>
-				</div>
-			</td>
-		</tr>
-	</table>
+					<span id="exportButton" style="display: none;margin-left: 110px;margin-top: -27px;">
+						<button type="button" id="showContentButton" class="btn-popup-close button-class:hover"
+							onclick="exportExcel()">Export to Excel</button>
+					</span>
+				</td>
+				<td>
+
+				</td>
+				<td>
+
+				</td>
+				<td class="footer-info-td">
+					<div id="hideLicDiv" style="display: none;">
+						<div id="licenseType"></div>
+						<div id="userCompany"></div>
+					</div>
+				</td>
+				<td class="footer-info-td">
+					<div id="hideUserDiv" style="display: none;">
+						<div id="userName"></div>
+						<div id="userEmail"></div>
+					</div>
+				</td>
+				<td class="footer-info-td">
+					<div id="hideLicDiv" style="display: none;">
+
+					</div>
+				</td>
+				<td class="footer-info-td">
+					<div id="hideUserDiv" style="display: none;">
+
+					</div>
+				</td>
+
+			</tr>
+		</table>
+	</div>
 	<div id="popup-modal" class="popup-modal-class" style="display: block;"></div>
-	<div class="custom" style="display: none; margin-top: 50px;">
+	<br>
+	<div class="custom" style="display:none;margin-top: -15px;padding: 15px;">
 		<div class="accordion" id="accordionExample">
-			<div class="accordion-item">
-				<h2 class="accordion-header" id="headingOne">
-					<button class="accordion-button" type="button"
-						data-bs-toggle="collapse" data-bs-target="#collapseOne"
-						aria-expanded="true" aria-controls="collapseOne">
-						<strong>WorkItem Details</strong>
-					</button>
-				</h2>
-				<div id="collapseOne" class="accordion-collapse collapse"
-					aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-					<div class="accordion-body">
-						<table
-							class="custom-table export-table polarion-rpw-table-content">
-							<thead>
-								<tr class="table-header-row">
-									<th style="text-align: left;">WorkItem Type</th>
-									<th style="text-align: center;">Custom Fields</th>
-									<th style="text-align: center;">Custom Enumeration</th>
-									<th style="text-align: center;">WorkFlow Condition</th>
-									<th style="text-align: center;">Workflow Function</th>
-								</tr>
-							</thead>
-							<tbody id="userTableBody">
-							</tbody>
-						</table>
+			<div class="card">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="headingOne">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+							<strong>WorkItem Details</strong>
+						</button>
+					</h2>
+					<div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+						data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<table class="export-table polarion-rpw-table-content">
+								<thead>
+									<tr class="table-header-row">
+										<th style="text-align: center;">WorkItem Type</th>
+										<th style="text-align: center;">Custom Fields</th>
+										<th style="text-align: center;">Custom Enumeration</th>
+										<th style="text-align: center;">WorkFlow Condition</th>
+										<th style="text-align: center;">Workflow Function</th>
+									</tr>
+								</thead>
+								<tbody id="userTableBody">
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
-
-			<div class="accordion-item">
-				<h2 class="accordion-header" id="headingTwo">
-					<button class="accordion-button" type="button"
-						data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-						aria-expanded="false" aria-controls="collapseTwo">
-
-						<strong> Document Details</strong>
-					</button>
-				</h2>
-				<div id="collapseTwo" class="accordion-collapse collapse"
-					aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-					<div class="accordion-body">
-						<table
-							class="custom-table export-table polarion-rpw-table-content">
-							<thead>
-								<tr class="table-header-row">
-									<th style="text-align: left;">Document Types</th>
-									<th style="text-align: center;">Document Custom Fields</th>
-									<th style="text-align: center;">Document WorkFlow
-										Condition</th>
-									<th style="text-align: center;">Document Workflow Function</th>
-								</tr>
-							</thead>
-							<tbody id="userTableBodyDocument">
-							</tbody>
-						</table>
+			<div class="card">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="headingTwo">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+							<strong>Document Details</strong>
+						</button>
+					</h2>
+					<div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+						data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<table class="export-table polarion-rpw-table-content">
+								<thead>
+									<tr class="table-header-row">
+										<th style="text-align: center;">Document Types</th>
+										<th style="text-align: center;">Document Custom Fields</th>
+										<th style="text-align: center;">Document WorkFlow Condition</th>
+										<th style="text-align: center;">Document Workflow Function</th>
+									</tr>
+								</thead>
+								<tbody id="userTableBodyDoc">
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
-
-			<div class="accordion-item">
-				<h2 class="accordion-header" id="headingThree">
-					<button class="accordion-button" type="button"
-						data-bs-toggle="collapse" data-bs-target="#collapseThree"
-						aria-expanded="false" aria-controls="collapseThree">
-						<strong> Live Report Details</strong>
-					</button>
-				</h2>
-				<div id="collapseThree" class="accordion-collapse collapse"
-					aria-labelledby="headingThree" data-bs-parent="#accordionExample">
-					<div class="accordion-body">
-						<table
-							class="custom-table export-table polarion-rpw-table-content"
-							style="display: none;">
-
-							<thead>
-								<tr class="table-header-row">
-									<th style="text-align: center;">Space</th>
-									<th style="text-align: center;">Live Report Name</th>
-									<th style="text-align: center;">Created Data</th>
-									<th style="text-align: center;">Updated Date</th>
-								</tr>
-							</thead>
-							<tbody id="liveReportTableBody">
-							</tbody>
-						</table>
+			<div class="card">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="headingThree">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+							<strong>Live Report Details</strong>
+						</button>
+					</h2>
+					<div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
+						data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<table class="custom-table export-table polarion-rpw-table-content" style="display: none;">
+								<thead>
+									<tr class="polarion-rpw-table-header-row table-header-row">
+										<th>Space Name</th>
+										<th>Live Report Names</th>
+										<th>Created Date</th>
+										<th>Updated Date</th>
+									</tr>
+								</thead>
+								<tbody id="spaceReportTableBody">
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
-
-			<div class="accordion-item">
-				<h2 class="accordion-header" id="headingFour">
-					<button class="accordion-button" type="button"
-						data-bs-toggle="collapse" data-bs-target="#collapseFour"
-						aria-expanded="false" aria-controls="collapseFour">
-						<strong>Custom Plugin Details</strong>
-					</button>
-				</h2>
-				<div id="collapseFour" class="accordion-collapse collapse"
-					aria-labelledby="headingFour" data-bs-parent="#accordionExample">
-					<div class="accordion-body">
-						<table
-							class="custom-table export-table polarion-rpw-table-content"
-							style="display: none;">
-							<thead>
-								<tr class="table-header-row">
-									<th>Name</th>
-									<th>Location</th>
-								</tr>
-							</thead>
-							<tbody id="pluginReportTableBody">
-							</tbody>
-						</table>
+			<div class="card">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="headingFour">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+							<strong>Custom Plugin Details</strong>
+						</button>
+					</h2>
+					<div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+						data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<table class="custom-table export-table polarion-rpw-table-content" style="display: none;">
+								<thead>
+									<tr class="polarion-rpw-table-header-row table-header-row">
+										<th>Name</th>
+										<th>Location</th>
+									</tr>
+								</thead>
+								<tbody id="pluginReportTableBody">
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
-
-			<div class="accordion-item">
-				<h2 class="accordion-header" id="headingFive">
-					<button class="accordion-button" type="button"
-						data-bs-toggle="collapse" data-bs-target="#collapseFive"
-						aria-expanded="false" aria-controls="collapseFive">
-						<strong>Pre Post Save Function Details</strong>
-					</button>
-				</h2>
-				<div id="collapseFive" class="accordion-collapse collapse"
-					aria-labelledby="headingFive" data-bs-parent="#accordionExample">
-					<div class="accordion-body">
-						<table
-							class="custom-table export-table polarion-rpw-table-content"
-							style="display: none;">
-							<thead>
-								<tr class="table-header-row">
-									<th style="text-align: center;">Name</th>
-									<th style="text-align: center;">Function name</th>
-								</tr>
-							</thead>
-							<tbody id="prePostReportTableBody">
-							</tbody>
-						</table>
+			<div class="card">
+				<div class="accordion-item">
+					<h2 class="accordion-header" id="headingFive">
+						<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+							data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+							<strong>Pre Post Save Function Details</strong>
+						</button>
+					</h2>
+					<div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
+						data-bs-parent="#accordionExample">
+						<div class="accordion-body">
+							<table class="custom-table export-table polarion-rpw-table-content" style="display: none;">
+								<thead>
+									<tr class="polarion-rpw-table-header-row table-header-row">
+										<th style="text-align: center;">Script Name</th>
+										<th style="text-align: center;">Function Name</th>
+									</tr>
+								</thead>
+								<tbody id="pluginPrePostTableBody">
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-
-		<div id="contentContainer" class="hidden">
-			<div class="footer-main-div">
-				<table class="footer-table">
-					<tr>
-						<td class="footer-heading-td"
-							style="width: 60%; vertical-align: top;">
-							<h6>Intelizign Engineering Services GmbH</h6>
-						</td>
-						<td class="footer-info-td" style="width: 40%">
-							<p class="footer-info-text"
-								style="font-weight: bold; margin-bottom: 8px;">Contact Us On</p>
-							<p class="footer-info-text">
-								<i class="fa fa-globe"
-									style="font-size: 18px; margin-right: 8px"></i> <a
-									class="footer-info-text" href="https://intelizign.com/"
-									target="_blank">Intelizign Engineering Services GmbH</a>
-							</p>
-
-							<p class="footer-info-text">
-								<i class="fa fa-envelope-o"
-									style="font-size: 16px; margin-right: 8px"></i> <a
-									class="footer-info-text"
-									href="mailto:polarion.services@intelizign.com" target="_blank">polarion.services@intelizign.com</a class="footer-info-text">
-							</p>
-						</td>
-					</tr>
-				</table>
 			</div>
 		</div>
 	</div>
-</body>
+	</div>
+	<br>
+	<div id="contentFooter" class="hidden">
+		<div class="footer-main-div">
+			<table class="footer-table">
+				<tr>
+					<td class="footer-heading-td" style="width:60%; vertical-align: top;">
+						<h6>Intelizign Engineering Services GmbH</h6>
+					</td>
+					<td class="footer-info-td" style="width:40%">
+						<p class="footer-info-text" style="font-weight: bold; margin-bottom: 8px;">Contact Us On</p>
+						<p class="footer-info-text">
+							<i class="fa fa-globe" style="font-size:18px; margin-right: 8px"></i>
+							<a class="footer-info-text" href="https://intelizign.com/" target="_blank">Intelizign
+								Engineering Services GmbH</a>
+						</p>
+						<p class="footer-info-text">
+							<i class="fa fa-envelope-o" style="font-size:16px; margin-right: 8px"></i>
+							<a class="footer-info-text" href="mailto:polarion.services@intelizign.com"
+								target="_blank">polarion.services@intelizign.com</a class="footer-info-text">
+						</p>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 
+</body>
 
 </html>

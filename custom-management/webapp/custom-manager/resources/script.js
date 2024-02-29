@@ -27,12 +27,15 @@ $(document).ready(function() {
 });
 
 function projectInfo() {
-	$('#accordionExample .accordion-collapse').collapse('show');
+	
 	const projectId = $("#projectDropDown").val();
 	if (!projectId) {
         alert("Please select a project");
         return; 
     }
+    $('#exportButton').css('display', 'block');
+     $('#hideLicDiv').css('display', 'block');
+    $('#hideUserDiv').css('display', 'block');
     $('.custom').css('display', 'block');
 	$('.polarion-rpw-table-content').show();
 	$('.export-div').show();
@@ -51,11 +54,9 @@ function projectInfo() {
 			const prePostSaveScriptObj = data.prePostSaveScriptDetails;
 			const licenseDetailsObj = data.licenseDetails;
 			
-			console.log("wiCustomizationObj",wiCustomizationObj);
-			console.log("moduleCustomizationObj",moduleCustomizationObj);
 		
 			$('#userTableBody').empty();
-			$('#userTableBodyDocument').empty();
+			$('#userTableBodyDoc').empty();
 	
 			workItemCustomizationTable(wiCustomizationObj);
 			moduleCustomizationTable(moduleCustomizationObj);
@@ -91,7 +92,7 @@ function workItemCustomizationTable(wiCustomizationObj) {
 						.text(count)
 						.data('heading', countType)
 						.data('type',  wiCustom.wiType)
-						.data('name', wiCustom.wiName);
+						.data('name',  wiCustom.wiName);
 						
 					countCell.append(hyperlink);
 				} else {
@@ -157,7 +158,6 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 						.data('type', moduleCustom.moduleType)
 						.data('name', moduleCustom.moduleName);
 
-
 					countCell.append(hyperlink);
 				} else {
 					countCell.text(count);
@@ -165,7 +165,7 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 				row.append(countCell);
 			});
 
-			$('#userTableBodyDocument').append(row);
+			$('#userTableBodyDoc').append(row);
 		}
 	});
 }
@@ -173,44 +173,27 @@ function moduleCustomizationTable(moduleCustomizationObj) {
 function getVersionDetailsCustomizationTable(getVersionDetails) {
     $('#versionTableBody').empty();
 
- 
-    var values = Object.values(getVersionDetails);
-
-  
-    var rows = [];
-
-    
-    for (var i = 0; i < values.length; i++) {
-        var versionObj = values[i];
-
-    
-        if (i % 2 === 0) {
-            var row = $('<tr>').addClass('table-content-row');
-            rows.push(row);
-        }
-
-   
-        if (Object.keys(versionObj).length > 0) {
-            Object.entries(versionObj).forEach(([property, value]) => {
-                var propertyCell = $('<td>').css({
-                    'text-align': 'center',
-                    'font-size': '9px',
-                    'font-weight': 'bold'
-                }).text(property);
-
-                var valueCell = $('<td>').css({
-                    'text-align': 'center',
-                    'font-size': '9px'
-                }).text(value);
-
-                rows[rows.length - 1].append(propertyCell, valueCell);
+    Object.entries(getVersionDetails).forEach(([key, value]) => {
+        if (Object.keys(value).length > 0) {
+            Object.entries(value).forEach(([property, propValue]) => {
+                if (property === 'licenseType') {
+                    $('#licenseType').html(propValue);
+                    $('#hideLicDiv').show();
+                } else if (property === 'userCompany') {
+                    $('#userCompany').html(propValue);
+                    $('#hideUserDiv').show();
+                } else if (property === 'userName') {
+                    $('#userName').html(propValue);
+                    $('#hideLicDiv').show();
+                } else if (property === 'userEmail') {
+                    $('#userEmail').html(propValue);
+                    $('#hideUserDiv').show();
+                }
             });
         }
-    }
-
-
-    $('#versionTableBody').append(rows);
+    });
 }
+
 
 
 
@@ -221,7 +204,8 @@ function getVersionDetailsCustomizationTable(getVersionDetails) {
 
 function prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj)
 {
-	 $('#prePostReportTableBody').empty();
+	 $('#pluginPrePostTableBody').empty();
+	 console.log('prePostSaveScriptObj ',prePostSaveScriptObj)
 	  $.each(prePostSaveScriptObj, function(index, prePostObj) {
         if (prePostObj.hasOwnProperty('Name') && prePostObj.hasOwnProperty('Extension')) {
            
@@ -241,7 +225,8 @@ function prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj)
                     row.append(countCell);
                 });
 
-                $('#prePostReportTableBody').append(row);
+                $('#pluginPrePostTableBody').append(row);
+                //uniqueFolderNames[pluginObj.pluginDeatils] = true;
             }
         
     });
@@ -275,7 +260,7 @@ function pluginDetailCustomizationTable(pluginDetailsObj) {
                 });
 
                 $('#pluginReportTableBody').append(row);
- 
+                //uniqueFolderNames[pluginObj.pluginDeatils] = true;
             }
         }
     });
@@ -284,7 +269,7 @@ function pluginDetailCustomizationTable(pluginDetailsObj) {
 
 function liveReportCustomizationTable(liveReportObj) {
   
-    $('#liveReportTableBody').empty();
+    $('#spaceReportTableBody').empty();
     const uniqueFolderNames = {};
 
 
@@ -310,7 +295,7 @@ function liveReportCustomizationTable(liveReportObj) {
                 $.each(liveReportObj, function(index, innerReportObj) {
                     if (innerReportObj.folderName === reportObj.folderName) {
                         var decodedReportName = decodeURIComponent(innerReportObj.reportName);
-                        mergedReportDetails.reportName += (index > 0 ? '<br>' : '') + '<a href="' + getReportUrl(projectId, reportObj.folderName, decodedReportName) + '" target="_blank" style="text-decoration: none; font-weight: bold; color: #005F87;">' + decodedReportName + '</a>'; // Append report name with hyperlink and styling
+                        mergedReportDetails.reportName += (index > 0 ? '<br>' : '') + '<a href="' + getReportUrl(projectId, reportObj.folderName, decodedReportName,innerReportObj.reportId) + '" target="_blank" style="text-decoration: none; font-weight: bold; color: #005F87;">' + decodedReportName + '</a>'; // Append report name with hyperlink and styling
                     }
                 });
 
@@ -323,7 +308,7 @@ function liveReportCustomizationTable(liveReportObj) {
                 });
 
             
-                $('#liveReportTableBody').append(row);
+                $('#spaceReportTableBody').append(row);
 
                
                 uniqueFolderNames[reportObj.folderName] = true;
@@ -333,13 +318,13 @@ function liveReportCustomizationTable(liveReportObj) {
 }
 
 
-function getReportUrl(projectId, spaceName, reportName) {
+function getReportUrl(projectId, spaceName, reportName,reportId) {
     var baseUrl = window.location.protocol + '//' + window.location.host;
     var polarionStartingUrl = '/polarion/#/project/';
     if (spaceName === '_default') {
-        return baseUrl + polarionStartingUrl + projectId + '/wiki/' + reportName;
+        return baseUrl + polarionStartingUrl + projectId + '/wiki/' + reportId;
     } else {
-        return baseUrl + polarionStartingUrl + projectId + '/wiki/' + spaceName + '/' + reportName;
+        return baseUrl + polarionStartingUrl + projectId + '/wiki/' + spaceName + '/' + reportId;
     }
 }
 
@@ -349,6 +334,7 @@ function getReportUrl(projectId, spaceName, reportName) {
 
 
 $(document).on('click', '.clickable-cell', function() {
+	
     const projectId = $("#projectDropDown").val();
     var heading = $(this).data('heading');
     var type = $(this).data('type');
@@ -362,15 +348,15 @@ $(document).on('click', '.clickable-cell', function() {
         success: function(response) {
            
             const customizationDetailsResponseData = response.customizationDetailsResponseData;
-           	console.log("Customization Details Response Data", customizationDetailsResponseData);
+           
             if(heading === "moduleCustomfieldCount"  || heading === "wiCustomFieldCount" ){
-            showCustomFieldModelPopup(name , customizationDetailsResponseData);
+            showCustomFieldModelPopup(name,  customizationDetailsResponseData);
             }else if(heading === "moduleWorkflowConditionCount"  || heading === "wiWorkflowScriptConditionCount"){
-			showWorkFlowConditionPopup(name , customizationDetailsResponseData);
+			showWorkFlowConditionPopup(name,  customizationDetailsResponseData);
 			}else if(heading === "moduleWorkflowFunctionCount" || heading === "wiWorkflowScriptFunctionCount"){
-			showWorkFlowFunctionPopup(name , customizationDetailsResponseData);	
+			showWorkFlowFunctionPopup(name,  customizationDetailsResponseData);	
 			}else{
-				showCustomEnumerationModelPopup(name , customizationDetailsResponseData);
+				showCustomEnumerationModelPopup(name,  customizationDetailsResponseData);
 			}
         },
         error: function(error) {
@@ -379,29 +365,18 @@ $(document).on('click', '.clickable-cell', function() {
     });
 });
 
-
-
-
-
-
 function showCustomFieldModelPopup(name, customizationDetailsResponseData) {
-	
     const modal = $('<div>').addClass('modal');
-    const modalContent = $('<div>').addClass('modal-content');
+    const modalContent = $('<div>').addClass('modal-popup-content');
     const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
-    const popupBody = $('<div>').addClass('popup-body');
+    const popupBody = $('<div>').addClass('popup-body').css('max-height', '400px').css('overflow-y', 'auto'); // Add overflow-y and max-height properties
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
     const tableHeaderRow = $('<tr>').addClass('table-header-row');
     tableHeaderRow.append($('<th>').text('Custom ID'));
     tableHeaderRow.append($('<th>').text('Custom Name'));
-     tableHeaderRow.append($('<th>').text('Custom Type'));
+    tableHeaderRow.append($('<th>').text('Custom Type'));
     tbody.append(tableHeaderRow);
-
- 
-    if (Object.keys(customizationDetailsResponseData).length > 8) {
-        popupBody.css('max-height', '500px');
-    }
 
     for (const key in customizationDetailsResponseData) {
         if (customizationDetailsResponseData.hasOwnProperty(key)) {
@@ -409,10 +384,9 @@ function showCustomFieldModelPopup(name, customizationDetailsResponseData) {
             const tableContentRow = $('<tr>').addClass('table-content-row');
             tableContentRow.append($('<td>').text(customDetail.customId));
             tableContentRow.append($('<td>').text(customDetail.customName));
-             let customType = customDetail.customType || "Enum"; 
+            let customType = customDetail.customType || "Enum"; 
             const lastSegment = customType.split('.').pop();
             tableContentRow.append($('<td>').text(lastSegment));
-            tbody.append(tableContentRow);
             tbody.append(tableContentRow);
         }
     }
@@ -430,12 +404,12 @@ function showCustomFieldModelPopup(name, customizationDetailsResponseData) {
     modal.show();
 }
 
+
 function showWorkFlowConditionPopup(name, customizationDetailsResponseData) {
-	
     const modal = $('<div>').addClass('modal');
-    const modalContent = $('<div>').addClass('modal-content');
+    const modalContent = $('<div>').addClass('modal-popup-content');
     const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
-    const popupBody = $('<div>').addClass('popup-body');
+    const popupBody = $('<div>').addClass('popup-body').css('max-height', '400px').css('overflow-y', 'auto'); // Add overflow-y and max-height properties
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
     const tableHeaderRow = $('<tr>').addClass('table-header-row');
@@ -443,11 +417,6 @@ function showWorkFlowConditionPopup(name, customizationDetailsResponseData) {
     tableHeaderRow.append($('<th>').text('Action Name'));
     tableHeaderRow.append($('<th>').text('Script Name'));
     tbody.append(tableHeaderRow);
-
- 
-    if (Object.keys(customizationDetailsResponseData).length > 8) {
-        popupBody.css('max-height', '500px'); 
-    }
 
     for (const key in customizationDetailsResponseData) {
         if (customizationDetailsResponseData.hasOwnProperty(key)) {
@@ -474,11 +443,10 @@ function showWorkFlowConditionPopup(name, customizationDetailsResponseData) {
 }
 
 function showWorkFlowFunctionPopup(name, customizationDetailsResponseData) {
-	
     const modal = $('<div>').addClass('modal');
-    const modalContent = $('<div>').addClass('modal-content');
+    const modalContent = $('<div>').addClass('modal-popup-content');
     const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
-    const popupBody = $('<div>').addClass('popup-body');
+    const popupBody = $('<div>').addClass('popup-body').css('max-height', '400px').css('overflow-y', 'auto'); // Add overflow-y and max-height properties
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
     const tableHeaderRow = $('<tr>').addClass('table-header-row');
@@ -486,11 +454,6 @@ function showWorkFlowFunctionPopup(name, customizationDetailsResponseData) {
     tableHeaderRow.append($('<th>').text('Action Name'));
     tableHeaderRow.append($('<th>').text('Script Name'));
     tbody.append(tableHeaderRow);
-
-
-    if (Object.keys(customizationDetailsResponseData).length > 8) {
-        popupBody.css('max-height', '500px');
-    }
 
     for (const key in customizationDetailsResponseData) {
         if (customizationDetailsResponseData.hasOwnProperty(key)) {
@@ -518,21 +481,15 @@ function showWorkFlowFunctionPopup(name, customizationDetailsResponseData) {
 }
 
 function showCustomEnumerationModelPopup(name, customizationDetailsResponseData) {
-	
     const modal = $('<div>').addClass('modal');
-    const modalContent = $('<div>').addClass('modal-content');
+    const modalContent = $('<div>').addClass('modal-popup-content');
     const popupHeading = $('<h4>').addClass('popup-heading').attr('id', 'popupHeading').text(name);
-    const popupBody = $('<div>').addClass('popup-body');
+    const popupBody = $('<div>').addClass('popup-body').css('max-height', '400px').css('overflow-y', 'auto'); // Add overflow-y and max-height properties
     const table = $('<table>').addClass('table-main');
     const tbody = $('<tbody>').attr('id', 'popupDetailsTable');
     const tableHeaderRow = $('<tr>').addClass('table-header-row');
     tableHeaderRow.append($('<th>').text('Enumeration Id'));
     tbody.append(tableHeaderRow);
-
-
-    if (Object.keys(customizationDetailsResponseData).length > 8) {
-        popupBody.css('max-height', '500px');
-    }
 
     for (const key in customizationDetailsResponseData) {
         if (customizationDetailsResponseData.hasOwnProperty(key)) {
@@ -555,3 +512,15 @@ function showCustomEnumerationModelPopup(name, customizationDetailsResponseData)
     $('#popup-modal').append(modal);
     modal.show();
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById('showContentButton').addEventListener('click', function() {
+        var contentContainer = document.getElementById('contentFooter');
+        if (contentContainer.classList.contains('hidden')) {
+            contentContainer.classList.remove('hidden');
+        } else {
+            contentContainer.classList.remove('hidden');
+        }
+    });
+});

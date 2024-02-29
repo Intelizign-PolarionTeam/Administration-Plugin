@@ -1,4 +1,4 @@
-package com.intelizign.admin_custom_management.service;
+package com.intelizign.admin_custom_manager.service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
