@@ -173,9 +173,7 @@ function moduleCustomizationTable(moduleCustomizationObj, versionId) {
 
                 if (columnIndex === 0 && versionId < 23 && index === 0) {
                     countCell.prop('rowspan', moduleCustomizationObj.length);
-                } else if (columnIndex === 0) {
-                    countCell.remove(); 
-                }
+                } 
 
                 row.append(countCell);
             });
