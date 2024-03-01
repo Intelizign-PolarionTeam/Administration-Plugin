@@ -143,10 +143,13 @@ function exportExcel() {
 function moduleCustomizationTable(moduleCustomizationObj, versionId) {
     var version = parseInt(versionId.substring(0, 2));
     if (version >= 23) {
-        $('#customizationmessage').html(`<span>*From Version ${versionId} Document custom field is applicable to each module type.</span>`);
+        $('#customizationmessage').html(`<span>*From Version 2304 Document Custom Field is applicable to each module type.</span>`);
     } else {
-        $('#customizationmessage').html(`<span>*Below Version ${versionId} Document custom field is applicable all module type.</span>`);
+        $('#customizationmessage').html(`<span>*Below Version 2304 Document Custom Field is applicable all module type.</span>`);
     }
+
+    // Check if version is less than 23 and there are elements in the moduleCustomizationObj array
+    var shouldMergeCells = (version < 23 && moduleCustomizationObj.length > 0);
 
     $.each(moduleCustomizationObj, function(index, moduleCustom) {
 
@@ -171,9 +174,12 @@ function moduleCustomizationTable(moduleCustomizationObj, versionId) {
                     countCell.text(count);
                 }
 
-                if (columnIndex === 0 && versionId < 23 && index === 0) {
+                
+                if (columnIndex === 0 && shouldMergeCells && index === 0) {
                     countCell.prop('rowspan', moduleCustomizationObj.length);
-                } 
+                } else if (columnIndex === 0) {
+                    countCell.remove(); 
+                }
 
                 row.append(countCell);
             });
@@ -182,6 +188,7 @@ function moduleCustomizationTable(moduleCustomizationObj, versionId) {
         }
     });
 }
+
 
 
 
@@ -195,7 +202,7 @@ function prePostSaveScriptMapCustomizationTable(prePostSaveScriptObj) {
 			var row = $('<tr>').addClass('table-content-row');
 			['Name', 'Extension'].forEach(function(prePostObjEvent) {
 				var eventValue = prePostObj[prePostObjEvent];
-				var countCell = $('<td>').css('text-align', 'center');
+				var countCell = $('<td>').css('text-align', 'left');
 				if (eventValue > 0) {
 					var hyperlink = $('<a>').addClass('data-span clickable-cell').css('font-weight', 'bold').text(eventValue);
 					countCell.append(hyperlink);
@@ -228,7 +235,7 @@ function pluginDetailCustomizationTable(pluginDetailsObj) {
 				['pluginDetails', 'pluginPath'].forEach(function(pluginEvent) {
 					var eventValue = pluginObj[pluginEvent];
 					console.log("Event Value is", eventValue);
-					var countCell = $('<td>').css('text-align', 'center');
+					var countCell = $('<td>').css('text-align', 'left');
 					if (eventValue > 0) {
 						var hyperlink = $('<a>').addClass('data-span clickable-cell').css('font-weight', 'bold').text(eventValue);
 						countCell.append(hyperlink);
