@@ -439,12 +439,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	 */
 	private void storeWorkItemCustomEnumerationCount(ITrackerProject pro, ITypeOpt wiTypeEnum) throws Exception {
 		try {
-			String projectLocation = pro.getLocation().getLastComponent();
+			String projectLocation = pro.getLocation().getLocationPath();
 			IEnumeration<ITypeOpt> wiType = trackerService.getTrackerProject(pro).getWorkItemTypeEnum();
 			List<String> typeIds = wiType.getAllOptions().stream().map(ITypeOpt::getId).collect(Collectors.toList());
 			transactionService.beginTx();
 			ILocation config = Location.getLocationWithRepository(DEFAULT_REPO,
-					"/" + projectLocation + "/.polarion/tracker/fields/");
+					projectLocation+ "/.polarion/tracker/fields/");
 			IRepositoryReadOnlyConnection defaultRepo = repositoryService.getReadOnlyConnection(DEFAULT_REPO);
 			InputStream inputStrm = defaultRepo.getContent(config);
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStrm);
@@ -579,13 +579,13 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 	private void addWorkItemCustomEnumerationDetailsInMapObject(ITypeOpt wiType, ITrackerProject project)
 			throws Exception {
 		try {
-			String projectLocation = project.getLocation().getLastComponent();
+			String projectLocation = project.getLocation().getLocationPath();
 			IEnumeration<ITypeOpt> wiEnumObj = project.getWorkItemTypeEnum();
 			List<String> wiTypeList = wiEnumObj.getAllOptions().stream().map(ITypeOpt::getId)
 					.collect(Collectors.toList());
 			transactionService.beginTx();
 			ILocation config = Location.getLocationWithRepository(DEFAULT_REPO,
-					"/" + projectLocation + "/.polarion/tracker/fields/");
+					projectLocation + "/.polarion/tracker/fields/");
 			IRepositoryReadOnlyConnection defaultRepo = repositoryService.getReadOnlyConnection(DEFAULT_REPO);
 			InputStream inputStrm = defaultRepo.getContent(config);
 			InputStreamReader inputStreamReader = new InputStreamReader(inputStrm);
