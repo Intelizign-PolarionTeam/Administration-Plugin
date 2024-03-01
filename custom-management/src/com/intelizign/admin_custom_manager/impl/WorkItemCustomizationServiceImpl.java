@@ -41,6 +41,7 @@ import com.polarion.alm.tracker.model.ITypeOpt;
 import com.polarion.alm.tracker.workflow.config.IAction;
 import com.polarion.alm.tracker.workflow.config.IWorkflowConfig;
 import com.polarion.core.util.logging.Logger;
+import com.polarion.platform.IPlatformService;
 import com.polarion.platform.ITransactionService;
 import com.polarion.platform.persistence.ICustomFieldsService;
 import com.polarion.platform.persistence.IEnumeration;
@@ -66,6 +67,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 
 	private ITrackerService trackerService;
 	private ITransactionService transactionService;
+	private IPlatformService platformService;
 	private IRepositoryService repositoryService;
 	private ModuleCustomizationService moduleCustomizationService;
 
@@ -80,11 +82,12 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			wiCustomFieldCount;
 
 	public WorkItemCustomizationServiceImpl(ITrackerService trackerService, ITransactionService transactionService,
-			IRepositoryService repositoryService, ModuleCustomizationService moduleCustomizationService) {
+			IRepositoryService repositoryService, IPlatformService platformService, ModuleCustomizationService moduleCustomizationService) {
 		super();
 		this.trackerService = trackerService;
 		this.transactionService = transactionService;
 		this.repositoryService = repositoryService;
+		this.platformService = platformService;
 		this.moduleCustomizationService = moduleCustomizationService;
 	}
 
@@ -135,6 +138,10 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			throws Exception {
 		try {
 			String projectId = req.getParameter("projectId");
+		    String productId = platformService.getPolarionProductName();
+		    String versionId= platformService.getPolarionVersion();
+		    
+		   
 			ITrackerProject projectObject = trackerService.getTrackerProject(projectId);
 			List<ITypeOpt> workItemTypeEnum = trackerService.getTrackerProject(projectId).getWorkItemTypeEnum()
 					.getAvailableOptions(WORKITEM_TYPE);
@@ -158,7 +165,7 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 
 			List<Map<String, Object>> moduleCustomizationCountDetailsList = moduleCustomizationService
 					.getModuleCustomizationCountDetails(req, resp);
-
+			
 			addLiveReportDetailsInMapObject(req, resp);
 			addPluginDetailsInMapObject(req, resp);
 			addPrePostSaveScriptDetailsInMapObject(req, resp);
@@ -171,6 +178,8 @@ public class WorkItemCustomizationServiceImpl implements WorkItemCustomizationSe
 			jsonResponse.put("pluginDetails", pluginDetailsMap);
 			jsonResponse.put("prePostSaveScriptDetails", prePostSaveScriptMap);
 			jsonResponse.put("licenseDetails", licenseDetailsMap);
+			jsonResponse.put("productId", productId);
+			jsonResponse.put("versionId", versionId);
 
 			String jsonResponseString = objectMapper.writeValueAsString(jsonResponse);
 

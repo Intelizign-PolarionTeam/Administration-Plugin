@@ -8,16 +8,27 @@ P {
 	font-family: "Segoe UI", "Selawik", "Open Sans", Arial, sans-serif;
 	font-size: 13px;
 }
-A
-{
-	font-weight: bold;
-    color: #005F87 !important;
-    text-decoration: none !important;
-    cursor:pointer;
+
+A {
+
+	color: #005F87 !important;
+	text-decoration: none !important;
+	cursor: pointer;
 }
+
 DIV {
 	font-family: "Segoe UI", "Selawik", "Open Sans", Arial, sans-serif;
-	font-size: 18px;
+	font-size: 14px;
+}
+
+.headerversion-left-labels {
+	margin: 0 20px 0 15px;
+}
+
+.header-main-div {
+
+	margin-left: 18px;
+
 }
 
 .main-container {
@@ -140,13 +151,13 @@ polarion-rpw-table-header-row>th {
 }
 
 .btn-popup-close {
-	border: 1px solid rgb(210, 210, 210);
+	border: 1px solid rgb(160, 160, 160);
 	text-align: center;
 	font-weight: bold;
 	color: #000;
 	padding: 3px 12px;
 	font-size: 13px;
-	background-color: #f5f5f5;
+	background-color: #f6f6f6;
 	border-radius: 3px;
 	cursor: pointer;
 }
@@ -280,10 +291,11 @@ polarion-rpw-table-header-row>th {
 
 .footer-info-text {
 	font-size: 16px;
-	color: #fff;
+	color: #fff !important;
 	margin-bottom: 3px;
 	line-height: 18px;
 	text-decoration: none;
+	text-align: center;
 }
 
 .footer-info-text:hover {
@@ -304,10 +316,87 @@ polarion-rpw-table-header-row>th {
 }
 
 .active {
-    background-color: #e1e1e1;
+	background-color: #e1e1e1;
 }
 
-.data-span clickable-cell
-{
-	cursor:pointer;
+.data-span clickable-cell {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.table-main thead {
+	position: sticky;
+	top: 0;
+	background-color: #fff;
+	border: 1px solid #CCCCCC;
+}
+
+
+.header-td {
+	font-size: 22px;
+	width: 250px;
+}
+
+.header-td span {
+	display: none;
+	margin-left: 123px;
+	margin-top: -33px;
+}
+
+
+.header-td label {
+	font-size: 14px;
+	font-weight: bold;
+	color: #004d73;
+}
+
+.header-versioninfo-maindiv {
+	display: flex;
+	justify-content: space-evenly;
+	color: black;
+}
+
+.headerversion-left-labels,
+.headerversion-right-labels .headerversion-rightedge-labels {
+	flex: 1;
+	margin-right: 45px;
+}
+
+.headerversion-left-labels label,
+.headerversion-left-labels label,
+.headerversion-rightedge-labels label {
+	display: block;
+	margin-right: 45px;
+
+}
+
+.headerversion-left-labels div,
+.headerversion-left-labels div {
+	margin-bottom: 10px;
+
+}
+
+.customization-msg-control {
+	padding: 10px;
+	
+}
+
+.customization-msg-control span{
+	color: #004d73;
+	font-weight:bold;
+}
+
+.version-Heading {
+	font-weight: bold;
+	color: #777777;
+	margin-bottom: 9px;
+}
+
+#userCompany,
+#licenseType,
+#userEmail,
+#userName,
+#productId,
+#versionId {
+	color: #777777;
 }

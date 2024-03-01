@@ -6,6 +6,7 @@ import com.intelizign.admin_custom_manager.service.ModuleCustomizationService;
 import com.intelizign.admin_custom_manager.service.WorkItemCustomizationService;
 import com.polarion.platform.service.repository.IRepositoryService;
 import com.polarion.alm.tracker.ITrackerService;
+import com.polarion.platform.IPlatformService;
 import com.polarion.platform.ITransactionService;
 import com.polarion.platform.core.PlatformContext;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,8 @@ public class AdminCustomManagementServlet extends HttpServlet {
 			.lookupService(ITransactionService.class);
 	private static final IRepositoryService repositoryService = (IRepositoryService) PlatformContext.getPlatform()
 			.lookupService(IRepositoryService.class);
-
+	private static final IPlatformService platformService = (IPlatformService) PlatformContext.getPlatform()
+			.lookupService(IPlatformService.class);
 	private ModuleCustomizationService moduleCustomizationService ;
 	private WorkItemCustomizationService workItemCustomizationService ;
 	
@@ -38,7 +40,7 @@ public class AdminCustomManagementServlet extends HttpServlet {
 		super.init();
 		this.moduleCustomizationService = new ModuleCustomizationServiceImpl(trackerService);
 		this.workItemCustomizationService = new WorkItemCustomizationServiceImpl
-				(trackerService,transactionService,repositoryService,moduleCustomizationService);
+				(trackerService,transactionService,repositoryService,platformService,moduleCustomizationService);
 		
 	}
 	

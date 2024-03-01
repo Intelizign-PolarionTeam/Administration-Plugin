@@ -17,6 +17,7 @@ import com.polarion.alm.tracker.model.ITypeOpt;
 import com.polarion.alm.tracker.workflow.config.IAction;
 import com.polarion.alm.tracker.workflow.config.IWorkflowConfig;
 import com.polarion.core.util.logging.Logger;
+import com.polarion.platform.IPlatformService;
 import com.polarion.platform.persistence.ICustomFieldsService;
 import com.polarion.platform.persistence.UnresolvableObjectException;
 import com.polarion.subterra.base.data.model.ICustomField;
@@ -40,7 +41,6 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 
 	public ModuleCustomizationServiceImpl(ITrackerService trackerService) {
 		this.trackerService = trackerService;
-
 	}
 
 	/**
