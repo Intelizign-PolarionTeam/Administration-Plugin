@@ -141,7 +141,8 @@ function exportExcel() {
 }
 
 function moduleCustomizationTable(moduleCustomizationObj, versionId) {
-    var version = parseInt(versionId.substring(0, 2));
+    var versionIds = "22R1";
+    var version = parseInt(versionIds.substring(0, 2));
     if (version >= 23) {
         $('#customizationmessage').html(`<span>*From Version 2304 Document Custom Field is applicable to each module type.</span>`);
     } else {
@@ -152,7 +153,6 @@ function moduleCustomizationTable(moduleCustomizationObj, versionId) {
     var shouldMergeCells = (version < 23 && moduleCustomizationObj.length > 0);
 
     $.each(moduleCustomizationObj, function(index, moduleCustom) {
-
         if (moduleCustom.hasOwnProperty('moduleType') && moduleCustom.hasOwnProperty('moduleName') && moduleCustom.hasOwnProperty('moduleCustomfieldCount') &&
             moduleCustom.hasOwnProperty('moduleWorkflowFunctionCount') && moduleCustom.hasOwnProperty('moduleWorkflowConditionCount')) {
 
@@ -174,11 +174,10 @@ function moduleCustomizationTable(moduleCustomizationObj, versionId) {
                     countCell.text(count);
                 }
 
-                
                 if (columnIndex === 0 && shouldMergeCells && index === 0) {
                     countCell.prop('rowspan', moduleCustomizationObj.length);
-                } else if (columnIndex === 0) {
-                    countCell.remove(); 
+                } else if (columnIndex === 0 && shouldMergeCells) {
+                    countCell.addClass('hidden'); // Hide the cell without removing it
                 }
 
                 row.append(countCell);
