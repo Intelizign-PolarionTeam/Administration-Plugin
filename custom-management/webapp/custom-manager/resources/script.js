@@ -141,8 +141,7 @@ function exportExcel() {
 }
 
 function moduleCustomizationTable(moduleCustomizationObj, versionId) {
-    var versionIds = "22R1";
-    var version = parseInt(versionIds.substring(0, 2));
+    var version = parseInt(versionId.substring(0, 2));
     if (version >= 23) {
         $('#customizationmessage').html(`<span>*From Version 2304 Document Custom Field is applicable to each module type.</span>`);
     } else {
@@ -187,7 +186,6 @@ function moduleCustomizationTable(moduleCustomizationObj, versionId) {
         }
     });
 }
-
 
 
 
