@@ -165,7 +165,7 @@ public class ModuleCustomizationServiceImpl implements ModuleCustomizationServic
 	        IWorkflowConfig workFlowModule = trackerService.getWorkflowManager().getWorkflowConfig(MODULE_PROTOTYPE_KEY,
 	                moduleTypeEnum.getId(), pro.getContextId());
 	        Collection<IAction> actions = workFlowModule.getActions();
-	        
+	        storeModuleWorkFlowFunctionCount(actions,moduleTypeEnum);
 	        long conditionCount = actions.stream()
 	            .flatMap(action -> action.getConditions().stream())
 	            .filter(conditionOperation -> WORKFLOW_CONDITION_KEY.equals(conditionOperation.getName()))
