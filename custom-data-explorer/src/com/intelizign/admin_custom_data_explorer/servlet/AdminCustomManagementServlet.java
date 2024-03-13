@@ -1,11 +1,12 @@
-package com.intelizign.admin_custom_management.servlet;
+package com.intelizign.admin_custom_data_explorer.servlet;
 
-import com.intelizign.admin_custom_management.impl.ModuleCustomizationServiceImpl;
-import com.intelizign.admin_custom_management.impl.WorkItemCustomizationServiceImpl;
-import com.intelizign.admin_custom_management.service.ModuleCustomizationService;
-import com.intelizign.admin_custom_management.service.WorkItemCustomizationService;
+import com.intelizign.admin_custom_data_explorer.impl.ModuleCustomizationServiceImpl;
+import com.intelizign.admin_custom_data_explorer.impl.WorkItemCustomizationServiceImpl;
+import com.intelizign.admin_custom_data_explorer.service.ModuleCustomizationService;
+import com.intelizign.admin_custom_data_explorer.service.WorkItemCustomizationService;
 import com.polarion.platform.service.repository.IRepositoryService;
 import com.polarion.alm.tracker.ITrackerService;
+import com.polarion.platform.IPlatformService;
 import com.polarion.platform.ITransactionService;
 import com.polarion.platform.core.PlatformContext;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,8 @@ public class AdminCustomManagementServlet extends HttpServlet {
 			.lookupService(ITransactionService.class);
 	private static final IRepositoryService repositoryService = (IRepositoryService) PlatformContext.getPlatform()
 			.lookupService(IRepositoryService.class);
-
+	private static final IPlatformService platformService = (IPlatformService) PlatformContext.getPlatform()
+			.lookupService(IPlatformService.class);
 	private ModuleCustomizationService moduleCustomizationService ;
 	private WorkItemCustomizationService workItemCustomizationService ;
 	
@@ -38,29 +40,27 @@ public class AdminCustomManagementServlet extends HttpServlet {
 		super.init();
 		this.moduleCustomizationService = new ModuleCustomizationServiceImpl(trackerService);
 		this.workItemCustomizationService = new WorkItemCustomizationServiceImpl
-				(trackerService,transactionService,repositoryService,moduleCustomizationService);
+				(trackerService,transactionService,repositoryService,platformService,moduleCustomizationService);
 		
 	}
-
-	/**
-	 * 
-	 */
+	
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String action = req.getParameter("action");
 		try {
-			if (action != null) {
+			if (action != null) {  
 				switch (action) {
 				case "getProjectList":
-					workItemCustomizationService.getProjectList(req, resp);
+					workItemCustomizationService.retrieveAndSendProjectListAsJSON(req, resp);
 					break;
 				case "getCustomizationCountDetails":
-					workItemCustomizationService.getCustomizationCountDetails(req, resp);
+					workItemCustomizationService.fetchAndOrganizeCustomizationCountDetails(req, resp);
 					
 					break;
 				case "getCustomizationDetails":
-					  workItemCustomizationService.getCustomizationDetails(req, resp);
+					  workItemCustomizationService.FetchAndSendCustomizationDetails(req, resp);
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid action specified");

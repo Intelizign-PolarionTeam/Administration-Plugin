@@ -1,16 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Custom-management
-Bundle-SymbolicName: custom-management;singleton:=true
+Bundle-SymbolicName: custom-data-explorer;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-ClassPath: CustomUserManagement.jar
-Export-Package: com.intelizign.admin_custom_management.impl,
- com.intelizign.admin_custom_management.service,
- com.intelizign.admin_custom_management.servlet
+Bundle-ClassPath: custom-data-explorer.jar
+Export-Package: com.intelizign.admin_custom_data_explorer.impl,
+ com.intelizign.admin_custom_data_explorer.service,
+ com.intelizign.admin_custom_data_explorer.servlet
 Require-Bundle: com.polarion.portal.tomcat;bundle-version="9.0.40",
  com.polarion.alm.ui;bundle-version="3.21.2",
  com.polarion.alm.tracker;bundle-version="3.21.2",
- com.fasterxml.jackson.jaxrs;bundle-version="2.11.1",
- com.fasterxml.jackson;bundle-version="2.11.1"
+ com.fasterxml.jackson;bundle-version="2.11.1",
+ com.fasterxml.jackson.jaxrs;bundle-version="2.11.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: custom.management.singleton.true
